@@ -1,5 +1,5 @@
-<<<<<<< HEAD
 # MailTalk
+a more simplified mail library with offline caching, based on mailcore2 and inboxapp
 
 [![CI Status](http://img.shields.io/travis/anthonyliao/MailTalk.svg?style=flat)](https://travis-ci.org/anthonyliao/MailTalk)
 [![Version](https://img.shields.io/cocoapods/v/MailTalk.svg?style=flat)](http://cocoadocs.org/docsets/MailTalk)
@@ -27,9 +27,3 @@ anthonyliao, alisforanthonyliao@gmail.com
 
 MailTalk is available under the MIT license. See the LICENSE file for more info.
 
-=======
-mailtalk
-========
-
-a more simplified mail library with offline caching, based on mailcore2 and inboxapp
->>>>>>> ad5c3ed0b77163d2243641391d25899a077ba26a
