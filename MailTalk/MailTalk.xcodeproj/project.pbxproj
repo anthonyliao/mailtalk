@@ -561,7 +561,7 @@
 			baseConfigurationReference = E0977A3CB29372E2A8AC19AA /* Pods.debug.xcconfig */;
 			buildSettings = {
 				GCC_PREFIX_HEADER = "MailTalk/Vendors/Inbox/Inbox-Prefix.pch";
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
@@ -572,7 +572,7 @@
 			baseConfigurationReference = E9207AAA1DBC18AD1659C581 /* Pods.release.xcconfig */;
 			buildSettings = {
 				GCC_PREFIX_HEADER = "MailTalk/Vendors/Inbox/Inbox-Prefix.pch";
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 			};
