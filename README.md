@@ -8,9 +8,12 @@ a more simplified mail library with offline caching, based on mailcore2 and inbo
 
 ## Usage
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+To run the example project, clone the repo, and run `pod install` from the MailTalkDemo directory first.
 
 ## Requirements
+
+IOS 8.0+
+ARC
 
 ## Installation
 
