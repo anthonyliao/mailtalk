@@ -50,11 +50,16 @@ static void initialize_INAPIManager() {
     self = [super init];
 	if (self) {
         
+        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+        
         _MT = [[MailTalkAdapter alloc] initWithAuthenticationCompleteHandler:^(BOOL success, NSError *error) {
+            dispatch_semaphore_signal(semaphore);
             if (success) {
                 [self fetchNamespaces:NULL];
             }
         }];
+        
+        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
         
 //        _AF = [[AFHTTPRequestOperationManager alloc] initWithBaseURL: [NSURL URLWithString: api]];
 //        
@@ -505,7 +510,7 @@ static void initialize_INAPIManager() {
                                  id namespaces = [serializer responseObjectForResponse:nil data:json error:&error];
                                  
                                  if (!error) {
-                                     NSLog(@"INAPIManager deserialized namespaces - %@", namespaces);
+                                     NSLog(@"INAPIManager deserialized namespaces - %lu", (unsigned long)[namespaces count]);
                                      // broadcast a notification about this change
                                      _namespaces = namespaces;
                                      

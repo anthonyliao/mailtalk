@@ -10,6 +10,7 @@
 #import "GTMOAuth2Authentication.h"
 #import "GTMOAuth2SignIn.h"
 #import "GTMHTTPFetcher.h"
+#import "GTMHTTPFetcherService.h"
 #import "GTMOAuth2ViewControllerTouch.h"
 #import "MailCore.h"
 #import "INNamespace.h"
@@ -39,6 +40,10 @@
     
     GTMOAuth2Authentication * auth = [GTMOAuth2ViewControllerTouch authForGoogleFromKeychainForName:_keychainName clientID:_clientID clientSecret:_clientSecret];
     _GTMOAuth = auth;
+    
+    GTMHTTPFetcherService * fetcherService = [[GTMHTTPFetcherService alloc] init];
+    [fetcherService setDelegateQueue:[[NSOperationQueue alloc] init]];
+    [auth setFetcherService:fetcherService];
     
     [auth authorizeRequest:nil completionHandler:^(NSError *error) {
         NSLog(@"Authorize completionHandler on main thread - %d", [NSThread isMainThread]);
