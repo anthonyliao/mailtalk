@@ -1,12 +1,8 @@
-<<<<<<< HEAD
 # OS X
 .DS_Store
 
 # Xcode
-=======
-# Xcode
 #
->>>>>>> ad5c3ed0b77163d2243641391d25899a077ba26a
 build/
 *.pbxuser
 !default.pbxuser
@@ -18,15 +14,11 @@ build/
 !default.perspectivev3
 xcuserdata
 *.xccheckout
-<<<<<<< HEAD
 profile
-=======
->>>>>>> ad5c3ed0b77163d2243641391d25899a077ba26a
 *.moved-aside
 DerivedData
 *.hmap
 *.ipa
-<<<<<<< HEAD
 
 # Bundler
 .bundle
@@ -49,6 +41,3 @@ Pods/
 # http://guides.cocoapods.org/using/using-cocoapods.html#should-i-ignore-the-pods-directory-in-source-control
 #
 Pods/
-
-.DS_Store
->>>>>>> ad5c3ed0b77163d2243641391d25899a077ba26a
