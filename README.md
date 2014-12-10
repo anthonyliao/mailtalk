@@ -12,8 +12,8 @@ To run the example project, clone the repo, and run `pod install` from the MailT
 
 ## Requirements
 
-IOS 8.0+
-ARC
+* IOS 8.0+
+* ARC
 
 ## Installation
 
