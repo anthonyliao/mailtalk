@@ -25,10 +25,46 @@ class ViewController: UIViewController, INModelProviderDelegate {
     
     func providerDataChanged(provider: INModelProvider!) {
         println("provider data changed")
+        
+        if provider is INThreadProvider {
+            if !provider.items.isEmpty {
+                for thread in provider.items as [INThread] {
+                    if thread.messageIDs.count > 1 {
+//                    if thread.ID == "1485390799505622173" {
+                        var messageProvider = thread.newMessageProvider()
+                        messageProvider.itemSortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
+                        messageProvider.delegate = self
+                        break;
+                    }
+                }
+            }
+        } else {
+            for item in provider.items {
+                println("message: [\(item)]")
+            }
+        }
     }
     
     func provider(provider: INModelProvider!, dataAltered changeSet: INModelProviderChangeSet!) {
         println("provider data change set")
+        
+        if provider is INThreadProvider {
+            if !provider.items.isEmpty {
+                for thread in provider.items as [INThread] {
+                    if thread.messageIDs.count > 1 {
+//                    if thread.ID == "1485390799505622173" {
+                        var messageProvider = thread.newMessageProvider()
+                        messageProvider.itemSortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
+                        messageProvider.delegate = self
+                        break;
+                    }
+                }
+            }
+        } else {
+            for item in provider.items {
+                println("message: [\(item)]")
+            }
+        }
     }
     
     func providerDataFetchCompleted(provider: INModelProvider!) {

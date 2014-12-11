@@ -29,7 +29,7 @@ PODS:
     - GTMHTTPFetcher
   - GTMHTTPFetcher (1.141)
   - mailcore2-ios (0.4.7)
-  - MailTalk (0.1.0):
+  - MailTalk (0.3.0):
     - AFNetworking (~> 2.0)
     - FMDB
     - gtm-oauth2 (~> 0.1)
@@ -48,6 +48,6 @@ SPEC CHECKSUMS:
   gtm-oauth2: 64f2d404a50676ab63b5437a02a7567da8f8b7fa
   GTMHTTPFetcher: 0baba9b6c0f9cf6d1d612b310220032925a5de88
   mailcore2-ios: f4d8d6419aa759563fa454b69a8412d5d42dd8fe
-  MailTalk: 82ad4c89b11c4749026fff21f3afad0bd878112c
+  MailTalk: b816301da15b1f1a07de3988f16a74b7a3cacbb0
 
 COCOAPODS: 0.35.0
