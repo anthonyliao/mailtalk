@@ -20,6 +20,7 @@
 
 @implementation MailTalkAdapter {
     MCOIMAPMessagesRequestKind _requestKind;
+    MCOIMAPSession * _MC2;
 }
 
 - (id)init
@@ -76,6 +77,20 @@
             NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
         }];
         _MC = imapSession;
+        
+        
+        _MC2 = [[MCOIMAPSession alloc] init];
+        [_MC2 setConnectionType:MCOConnectionTypeTLS];
+        [_MC2 setHostname:@"imap.gmail.com"];
+        [_MC2 setPort:993];
+        [_MC2 setAuthType:MCOAuthTypeXOAuth2];
+        [_MC2 setOAuth2Token:[_GTMOAuth accessToken]];
+        [_MC2 setUsername:[_GTMOAuth userEmail]];
+        [_MC2 setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
+        [_MC2 setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
+            NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+        }];
+
         
         if (error != nil) {
             NSLog(@"Unable to retrieve access token. Error: %@", error);
@@ -275,21 +290,9 @@
             [fetchMessagesOp start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
                 if (error == nil) {
                     NSLog(@"MT messages [%d]: fetched messsages: %lu", [NSThread isMainThread], [fetchedMessages count]);
+                    
                     for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
                         MTMessage * message = [[MTMessage alloc] initWithMessage:fetchedMessage];
-                        
-                        MCOIMAPSession * _MC2 = [[MCOIMAPSession alloc] init];
-                        [_MC2 setConnectionType:MCOConnectionTypeTLS];
-                        [_MC2 setHostname:@"imap.gmail.com"];
-                        [_MC2 setPort:993];
-                        [_MC2 setAuthType:MCOAuthTypeXOAuth2];
-                        [_MC2 setOAuth2Token:[_GTMOAuth accessToken]];
-                        [_MC2 setUsername:[_GTMOAuth userEmail]];
-                        [_MC2 setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
-                        [_MC2 setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
-                            NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-                        }];
-                        
                         
                         dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
                         __block NSString * snippet;
@@ -310,6 +313,7 @@
                         [message setBody:snippet];
                         [messagesDictionary addObject:[message resourceDictionary]];
                     }
+                    
                     NSData * json = [NSJSONSerialization dataWithJSONObject:messagesDictionary options:NSJSONWritingPrettyPrinted error:&error];
                     
                     if (error == nil) {
