@@ -78,7 +78,6 @@
         }];
         _MC = imapSession;
         
-        
         _MC2 = [[MCOIMAPSession alloc] init];
         [_MC2 setConnectionType:MCOConnectionTypeTLS];
         [_MC2 setHostname:@"imap.gmail.com"];
@@ -88,7 +87,7 @@
         [_MC2 setUsername:[_GTMOAuth userEmail]];
         [_MC2 setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
         [_MC2 setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
-            NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+//            NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
         }];
 
         
@@ -131,12 +130,26 @@
                                                                                                    [imapSession setPort:993];
                                                                                                    [imapSession setAuthType:MCOAuthTypeXOAuth2];
                                                                                                    [imapSession setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
-                                                                                                   
+                                                                                                   [imapSession setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
+                                                                                                       NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                                                                                                   }];
                                                                                                    [imapSession setOAuth2Token:[auth accessToken]];
                                                                                                    [imapSession setUsername:[auth userEmail]];
                                                                                                    
                                                                                                    _MC = imapSession;
                                                                                                    _GTMOAuth = auth;
+                                                                                                   
+                                                                                                   _MC2 = [[MCOIMAPSession alloc] init];
+                                                                                                   [_MC2 setConnectionType:MCOConnectionTypeTLS];
+                                                                                                   [_MC2 setHostname:@"imap.gmail.com"];
+                                                                                                   [_MC2 setPort:993];
+                                                                                                   [_MC2 setAuthType:MCOAuthTypeXOAuth2];
+                                                                                                   [_MC2 setOAuth2Token:[_GTMOAuth accessToken]];
+                                                                                                   [_MC2 setUsername:[_GTMOAuth userEmail]];
+                                                                                                   [_MC2 setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
+                                                                                                   [_MC2 setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
+//                                                                                                       NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+                                                                                                   }];
                                                                                                    
                                                                                                    completionBlock(YES, nil);
                                                                                                }}];
@@ -294,18 +307,20 @@
                     for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
                         MTMessage * message = [[MTMessage alloc] initWithMessage:fetchedMessage];
                         
-                        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
                         __block NSString * snippet;
-                        MCOIMAPMessageRenderingOperation * plainTextOp = [_MC2 plainTextBodyRenderingOperationWithMessage:fetchedMessage folder:folder stripWhitespace:YES];
-                        [plainTextOp start:^(NSString *htmlString, NSError *error) {
-                            if (error == nil) {
-                                NSLog(@"MT messages: rendered body: %@", htmlString);
-                                snippet = htmlString;
-                            }
-                            dispatch_semaphore_signal(semaphore);
-                        }];
-                        
-                        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+                        snippet = @"";
+//                        Comment out for now. Figure out how to make faster. Too slow currently
+//                        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+//                        MCOIMAPMessageRenderingOperation * plainTextOp = [_MC2 plainTextBodyRenderingOperationWithMessage:fetchedMessage folder:folder stripWhitespace:YES];
+//                        [plainTextOp start:^(NSString *htmlString, NSError *error) {
+//                            if (error == nil) {
+//                                NSLog(@"MT messages: rendered body: %@", htmlString);
+//                                snippet = htmlString;
+//                            }
+//                            dispatch_semaphore_signal(semaphore);
+//                        }];
+//                        
+//                        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
                         [message setNamespaceID:namespaceID];
                         [message setThreadID:threadIDString];
                         [message setSnippet:snippet];

@@ -305,7 +305,8 @@
 - (void)managerDidReset
 {
 	NSAssert([NSThread isMainThread], @"-managerDidReset is not threadsafe.");
-	[self refresh];
+    //TODO: figure out why, we're making a call to db again?
+//	[self refresh];
 }
 
 
