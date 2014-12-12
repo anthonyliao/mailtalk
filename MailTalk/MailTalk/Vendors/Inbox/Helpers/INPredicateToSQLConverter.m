@@ -98,6 +98,8 @@ static NSString * SQLNullValueString = @"NULL";
     NSString * str = nil;
 	if ([val isKindOfClass:[NSString class]])
 		str = val;
+    else if ([val isKindOfClass:[NSDate class]])
+        str = [NSString stringWithFormat:@"%f", [((NSDate *)val) timeIntervalSince1970]];
 	else if ([val respondsToSelector:@selector(intValue)])
 		str = [val stringValue];
     else

@@ -272,7 +272,7 @@ static void initialize_INAPIManager() {
 - (BOOL)isAuthenticated
 {
     BOOL isAuthenticated = [_MT isAuthenticated];
-    NSLog(@"INAPIManager is authenticated %d", isAuthenticated);
+//    NSLog(@"INAPIManager is authenticated %d", isAuthenticated);
     return isAuthenticated;
 //    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 //    __block BOOL authenticated = YES;
