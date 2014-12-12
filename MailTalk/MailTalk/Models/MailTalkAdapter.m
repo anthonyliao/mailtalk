@@ -302,7 +302,7 @@
             MCOIMAPFetchMessagesOperation * fetchMessagesOp = [_MC fetchMessagesOperationWithFolder:folder requestKind:_requestKind uids:searchResult];
             [fetchMessagesOp start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
                 if (error == nil) {
-                    NSLog(@"MT messages [%d]: fetched messsages: %lu", [NSThread isMainThread], [fetchedMessages count]);
+                    NSLog(@"MT messages [%d]: fetched messsages: %lu", [NSThread isMainThread], (unsigned long)[fetchedMessages count]);
                     
                     for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
                         MTMessage * message = [[MTMessage alloc] initWithMessage:fetchedMessage];
