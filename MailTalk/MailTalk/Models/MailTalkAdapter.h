@@ -57,4 +57,6 @@ typedef void (^ ResultBlock)(id result, NSError * error);
     success:(ResultBlock)success
     failure:(ErrorBlock)failure;
 
+- (void)cancelAllOperations;
+
 @end

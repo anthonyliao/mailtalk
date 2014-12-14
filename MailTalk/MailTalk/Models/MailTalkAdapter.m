@@ -20,7 +20,7 @@
 
 @implementation MailTalkAdapter {
     MCOIMAPMessagesRequestKind _requestKind;
-    MCOIMAPSession * _MC2;
+//    MCOIMAPSession * _MC2;
 }
 
 - (id)init
@@ -78,17 +78,17 @@
         }];
         _MC = imapSession;
         
-        _MC2 = [[MCOIMAPSession alloc] init];
-        [_MC2 setConnectionType:MCOConnectionTypeTLS];
-        [_MC2 setHostname:@"imap.gmail.com"];
-        [_MC2 setPort:993];
-        [_MC2 setAuthType:MCOAuthTypeXOAuth2];
-        [_MC2 setOAuth2Token:[_GTMOAuth accessToken]];
-        [_MC2 setUsername:[_GTMOAuth userEmail]];
-        [_MC2 setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
-        [_MC2 setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
-//            NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-        }];
+//        _MC2 = [[MCOIMAPSession alloc] init];
+//        [_MC2 setConnectionType:MCOConnectionTypeTLS];
+//        [_MC2 setHostname:@"imap.gmail.com"];
+//        [_MC2 setPort:993];
+//        [_MC2 setAuthType:MCOAuthTypeXOAuth2];
+//        [_MC2 setOAuth2Token:[_GTMOAuth accessToken]];
+//        [_MC2 setUsername:[_GTMOAuth userEmail]];
+//        [_MC2 setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
+//        [_MC2 setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
+////            NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+//        }];
 
         
         if (error != nil) {
@@ -131,7 +131,9 @@
                                                                                                    [imapSession setAuthType:MCOAuthTypeXOAuth2];
                                                                                                    [imapSession setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
                                                                                                    [imapSession setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
-                                                                                                       NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+//                                                                                                       NSUInteger maxBytes = MIN(data.length, 100);
+//                                                                                                       NSLog(@"[%p:%li]: %@", connectionID, type, [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, maxBytes)] encoding:NSUTF8StringEncoding]);
+                                                                                                       NSLog(@"[%p:%li]: %@", connectionID, type, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
                                                                                                    }];
                                                                                                    [imapSession setOAuth2Token:[auth accessToken]];
                                                                                                    [imapSession setUsername:[auth userEmail]];
@@ -139,17 +141,17 @@
                                                                                                    _MC = imapSession;
                                                                                                    _GTMOAuth = auth;
                                                                                                    
-                                                                                                   _MC2 = [[MCOIMAPSession alloc] init];
-                                                                                                   [_MC2 setConnectionType:MCOConnectionTypeTLS];
-                                                                                                   [_MC2 setHostname:@"imap.gmail.com"];
-                                                                                                   [_MC2 setPort:993];
-                                                                                                   [_MC2 setAuthType:MCOAuthTypeXOAuth2];
-                                                                                                   [_MC2 setOAuth2Token:[_GTMOAuth accessToken]];
-                                                                                                   [_MC2 setUsername:[_GTMOAuth userEmail]];
-                                                                                                   [_MC2 setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
-                                                                                                   [_MC2 setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
-//                                                                                                       NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-                                                                                                   }];
+//                                                                                                   _MC2 = [[MCOIMAPSession alloc] init];
+//                                                                                                   [_MC2 setConnectionType:MCOConnectionTypeTLS];
+//                                                                                                   [_MC2 setHostname:@"imap.gmail.com"];
+//                                                                                                   [_MC2 setPort:993];
+//                                                                                                   [_MC2 setAuthType:MCOAuthTypeXOAuth2];
+//                                                                                                   [_MC2 setOAuth2Token:[_GTMOAuth accessToken]];
+//                                                                                                   [_MC2 setUsername:[_GTMOAuth userEmail]];
+//                                                                                                   [_MC2 setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0)];
+//                                                                                                   [_MC2 setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
+////                                                                                                       NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+//                                                                                                   }];
                                                                                                    
                                                                                                    completionBlock(YES, nil);
                                                                                                }}];
@@ -224,6 +226,12 @@
     }
 }
 
+- (void)cancelAllOperations
+{
+    [_MC cancelAllOperations];
+//    [_MC2 cancelAllOperations];
+}
+
 - (void)getThreadsWithNamespace:(NSString *)namespaceID
                      parameters:(id)parameters
                         success:(ResultBlock)success
@@ -233,52 +241,104 @@
     
     NSString * folder = @"[Gmail]/All Mail";
     
-    MCOIndexSet *uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
-    
-    MCOIMAPFetchMessagesOperation *fetchOperation = [_MC fetchMessagesByNumberOperationWithFolder:folder
-                                                                                      requestKind:_requestKind
-                                                                                          numbers:uids];
-    
-    [fetchOperation start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
-        NSAssert(![NSThread isMainThread], @"MT threads: fetch op should not be called on main thread.");
-        
-        if (error == nil) {
-            NSMutableDictionary * threadsLookup = [[NSMutableDictionary alloc] initWithCapacity:[fetchedMessages count]];
-            
-            for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
-                NSString * gmailThreadID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailThreadID]];
-                MTThread * existingThread = (MTThread *)[threadsLookup objectForKey:gmailThreadID];
-                if (existingThread == nil) {
-                    existingThread = [[MTThread alloc] init];
-                    [existingThread setNamespaceID:[_GTMOAuth userEmail]];
-                    [threadsLookup setObject:existingThread forKey:gmailThreadID];
-                }
-                [existingThread addMessage:fetchedMessage];
-            }
-            
-            NSMutableArray * threadsDictionary = [[NSMutableArray alloc] init];
-            NSEnumerator * threadLookupEnumerator = [threadsLookup objectEnumerator];
-            id thread;
-            
-            while (thread = [threadLookupEnumerator nextObject]) {
-                NSDictionary * threadDictionary = [(MTThread *)thread resourceDictionary];
-                [threadsDictionary addObject:threadDictionary];
-            }
-            
-            NSLog(@"MT threads: retrieved: %@", threadsDictionary);
-            
-            NSData * json = [NSJSONSerialization dataWithJSONObject:threadsDictionary options:NSJSONWritingPrettyPrinted error:&error];
+//    MCOIndexSet *uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
+    NSDate * threeMonthsAgo = [[[NSDate alloc] init] dateByAddingTimeInterval:-90*24*60*60];
+    MCOIMAPSearchExpression * expression = [MCOIMAPSearchExpression searchOr:[MCOIMAPSearchExpression searchSinceDate:threeMonthsAgo]
+                                                                       other:[MCOIMAPSearchExpression searchSinceReceivedDate:threeMonthsAgo]];
+    expression = [MCOIMAPSearchExpression searchSinceDate:threeMonthsAgo];
+    MCOIMAPSearchOperation * searchOp = [_MC searchExpressionOperationWithFolder:folder expression:expression];
+    [searchOp start:^(NSError *error, MCOIndexSet *searchResult) {
+        NSLog(@"Emails within last 90 days: [%d]: %@", searchResult.count, searchResult);
+        MCOIMAPFetchMessagesOperation *fetchOperation = [_MC fetchMessagesByNumberOperationWithFolder:folder
+                                                                                          requestKind:_requestKind
+                                                                                              numbers:searchResult];
+        [fetchOperation start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
+            NSAssert(![NSThread isMainThread], @"MT threads: fetch op should not be called on main thread.");
             
             if (error == nil) {
-                success(json, nil);
+                NSMutableDictionary * threadsLookup = [[NSMutableDictionary alloc] initWithCapacity:[fetchedMessages count]];
+                
+                for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
+                    NSString * gmailThreadID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailThreadID]];
+                    MTThread * existingThread = (MTThread *)[threadsLookup objectForKey:gmailThreadID];
+                    if (existingThread == nil) {
+                        existingThread = [[MTThread alloc] init];
+                        [existingThread setNamespaceID:[_GTMOAuth userEmail]];
+                        [threadsLookup setObject:existingThread forKey:gmailThreadID];
+                    }
+                    [existingThread addMessage:fetchedMessage];
+                }
+                
+                NSMutableArray * threadsDictionary = [[NSMutableArray alloc] init];
+                NSEnumerator * threadLookupEnumerator = [threadsLookup objectEnumerator];
+                id thread;
+                
+                while (thread = [threadLookupEnumerator nextObject]) {
+                    NSDictionary * threadDictionary = [(MTThread *)thread resourceDictionary];
+                    [threadsDictionary addObject:threadDictionary];
+                }
+                
+                NSLog(@"MT threads: retrieved: %@", threadsDictionary);
+                
+                NSData * json = [NSJSONSerialization dataWithJSONObject:threadsDictionary options:NSJSONWritingPrettyPrinted error:&error];
+                
+                if (error == nil) {
+                    success(json, nil);
+                } else {
+                    failure(NO, error);
+                }
             } else {
+                NSLog(@"MT threads: Error downloading threads via MailCore: %@", error);
                 failure(NO, error);
             }
-        } else {
-            NSLog(@"MT threads: Error downloading threads via MailCore: %@", error);
-            failure(NO, error);
-        }
+        }];
+        
     }];
+    
+//    MCOIMAPFetchMessagesOperation *fetchOperation = [_MC fetchMessagesByNumberOperationWithFolder:folder
+//                                                                                      requestKind:_requestKind
+//                                                                                          numbers:uids];
+    
+//    [fetchOperation start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
+//        NSAssert(![NSThread isMainThread], @"MT threads: fetch op should not be called on main thread.");
+//        
+//        if (error == nil) {
+//            NSMutableDictionary * threadsLookup = [[NSMutableDictionary alloc] initWithCapacity:[fetchedMessages count]];
+//            
+//            for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
+//                NSString * gmailThreadID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailThreadID]];
+//                MTThread * existingThread = (MTThread *)[threadsLookup objectForKey:gmailThreadID];
+//                if (existingThread == nil) {
+//                    existingThread = [[MTThread alloc] init];
+//                    [existingThread setNamespaceID:[_GTMOAuth userEmail]];
+//                    [threadsLookup setObject:existingThread forKey:gmailThreadID];
+//                }
+//                [existingThread addMessage:fetchedMessage];
+//            }
+//            
+//            NSMutableArray * threadsDictionary = [[NSMutableArray alloc] init];
+//            NSEnumerator * threadLookupEnumerator = [threadsLookup objectEnumerator];
+//            id thread;
+//            
+//            while (thread = [threadLookupEnumerator nextObject]) {
+//                NSDictionary * threadDictionary = [(MTThread *)thread resourceDictionary];
+//                [threadsDictionary addObject:threadDictionary];
+//            }
+//            
+//            NSLog(@"MT threads: retrieved: %@", threadsDictionary);
+//            
+//            NSData * json = [NSJSONSerialization dataWithJSONObject:threadsDictionary options:NSJSONWritingPrettyPrinted error:&error];
+//            
+//            if (error == nil) {
+//                success(json, nil);
+//            } else {
+//                failure(NO, error);
+//            }
+//        } else {
+//            NSLog(@"MT threads: Error downloading threads via MailCore: %@", error);
+//            failure(NO, error);
+//        }
+//    }];
 }
 
 - (void)getMessagesWithNamespace:(NSString *)namespaceID

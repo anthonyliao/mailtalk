@@ -47,8 +47,10 @@
 
 - (void)handleSuccess:(AFHTTPRequestOperation *)operation withResponse:(id)responseObject
 {
-    if (![responseObject isKindOfClass: [NSDictionary class]])
-        return NSLog(@"SaveTag weird response: %@", responseObject);
+    if (![responseObject isKindOfClass: [NSDictionary class]]) {
+        NSLog(@"SaveTag weird response: %@", responseObject);
+        return;
+    }
     
     INTag * tag = (INTag *)[self model];
     

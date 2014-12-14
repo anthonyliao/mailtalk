@@ -303,6 +303,11 @@ static void initialize_INAPIManager() {
 //    return authenticated;
 }
 
+- (void)cancelAllOperations
+{
+    [_MT cancelAllOperations];
+}
+
 //- (void)authenticateWithCompletionBlock:(ErrorBlock)completionBlock;
 //{
 //    [self authenticateWithEmail:nil andCompletionBlock:completionBlock];

@@ -137,6 +137,11 @@ task fails.
 - (void)unauthenticate;
 
 /**
+ Cancels existing operations, if any
+ */
+- (void)cancelAllOperations;
+
+/**
  handleURL: should be called from your appication's app delegate in response to
  application:openURL:sourceApplication:annotation:. Inbox uses a special URL scheme
  to complete authentication and allow for deep linking.

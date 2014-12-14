@@ -52,8 +52,10 @@
     if ([responseObject isKindOfClass: [NSArray class]])
         responseObject = [responseObject firstObject];
     
-    if (![responseObject isKindOfClass: [NSDictionary class]])
-        return NSLog(@"SaveDraft weird response: %@", responseObject);
+    if (![responseObject isKindOfClass: [NSDictionary class]]) {
+        NSLog(@"SaveDraft weird response: %@", responseObject);
+        return;
+    }
 
     NSString * oldID = [self.model ID];
 

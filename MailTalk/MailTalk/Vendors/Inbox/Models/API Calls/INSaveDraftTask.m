@@ -72,8 +72,10 @@
 
 - (void)handleSuccess:(AFHTTPRequestOperation *)operation withResponse:(id)responseObject
 {
-    if (![responseObject isKindOfClass: [NSDictionary class]])
-        return NSLog(@"SaveDraft weird response: %@", responseObject);
+    if (![responseObject isKindOfClass: [NSDictionary class]]) {
+        NSLog(@"SaveDraft weird response: %@", responseObject);
+        return;
+    }
     
     INDraft * draft = (INDraft *)[self model];
     NSString * draftInitialID = [draft ID];
