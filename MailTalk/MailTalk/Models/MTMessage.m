@@ -39,7 +39,7 @@
     NSArray * cc = [self getParticipants:[header cc]];
     NSArray * to = [self getParticipants:[header to]];
     NSString * date = [self getTimestamp:[header date]];
-    NSString * unread = ([_message flags] & MCOMessageFlagSeen) ? @"false" : @"true";
+    NSNumber * unread = ([_message flags] & MCOMessageFlagSeen) ? [NSNumber numberWithBool:NO] : [NSNumber numberWithBool:YES];
     NSArray * fileIds = [[NSArray alloc] init];
     NSArray * files = [[NSArray alloc] init];
     NSDictionary * resourceDict = @{@"id" : messageID,
