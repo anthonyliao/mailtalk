@@ -14,6 +14,10 @@ typedef void (^ ViewControllerBlock)(UIViewController *);
 typedef void (^ ErrorBlock)(BOOL success, NSError * error);
 typedef void (^ ResultBlock)(id result, NSError * error);
 
+
+static NSString * INThreadsPrefetchNotification = @"INThreadsPrefetchNotification";
+static NSString * INThreadsPrefetchCountInfoKey = @"INThreadsPrefetchCountInfoKey";
+
 @class MCOIMAPSession;
 @class GTMOAuth2Authentication;
 

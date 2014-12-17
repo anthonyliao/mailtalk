@@ -23,6 +23,8 @@
 //    MCOIMAPSession * _MC2;
     NSObject * _cacheLock;
     NSMutableDictionary * _cache;
+    void (^_connectionLogger)(void * connectionID, MCOConnectionLogType type, NSData * data);
+    dispatch_queue_t _messageQueue;
 }
 
 - (id)init
@@ -40,10 +42,24 @@
     
     _isAuthenticated = NO;
     
+    _messageQueue = dispatch_queue_create("messageQueue", DISPATCH_QUEUE_SERIAL);
+    
     _cacheLock = [[NSObject alloc] init];
     @synchronized(_cacheLock) {
         _cache = [[NSMutableDictionary alloc] init];
     }
+    
+    _connectionLogger = ^(void * connectionID, MCOConnectionLogType type, NSData * data) {
+        NSString * dataStr;
+        if (data.length > 200) {
+            dataStr = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 100)] encoding:NSUTF8StringEncoding];
+            dataStr = [dataStr stringByAppendingString:@"..."];
+            dataStr = [dataStr stringByAppendingString:[[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(data.length-100, 100)] encoding:NSUTF8StringEncoding]];
+        } else {
+            dataStr = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, data.length)] encoding:NSUTF8StringEncoding];
+        }
+        NSLog(@"[%p:%i]: %@", connectionID, type, dataStr);
+    };
     
     _keychainName = @"MTOAuth2Token";
     _clientID = @"44193866924-dsqlj5easb9nl5kvl9i7cgk2846a82a6.apps.googleusercontent.com";
@@ -62,9 +78,6 @@
     //    MCOIMAPMessagesRequestKindSize
     
     GTMOAuth2Authentication * auth = [GTMOAuth2ViewControllerTouch authForGoogleFromKeychainForName:_keychainName clientID:_clientID clientSecret:_clientSecret];
-    [auth setAccessToken:nil];
-    [auth setUserEmail:@""];
-    [auth setRefreshToken:@""];
     _GTMOAuth = auth;
     
     GTMHTTPFetcherService * fetcherService = [[GTMHTTPFetcherService alloc] init];
@@ -83,11 +96,7 @@
         //Move callbacks to a background thread, so they won't interfere with main thread - can cause deadlock issues
         //Also allows us to use semaphores to make asynchronous calls feel synchronous
         [imapSession setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
-        [imapSession setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
-            NSUInteger maxBytes = MIN(data.length, 100);
-            NSLog(@"[%p:%li]: %@", connectionID, type, [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, maxBytes)] encoding:NSUTF8StringEncoding]);
-            //                                                                                                       NSLog(@"[%p:%li]: %@", connectionID, type, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-        }];
+        [imapSession setConnectionLogger:_connectionLogger];
         _MC = imapSession;
         
 //        _MC2 = [[MCOIMAPSession alloc] init];
@@ -112,11 +121,6 @@
             
             [_MC setOAuth2Token:[auth accessToken]];
             [_MC setUsername:[auth userEmail]];
-//            NSString * accessToken = @"ya29.3gBy3fU_sl1AjaUEd-O0OA4hQMNURtEnvw2rxVduVG_q2GXeh5PNmH4FP1_QVGdrqm_xwI-EaZxBfg";
-//            NSString * userEmail = @"topboxtest1@gmail.com";
-//            NSLog(@"Override access token with: %@", accessToken);
-//            [_MC setOAuth2Token:accessToken];
-//            [_MC setUsername:userEmail];
             
             _isAuthenticated = YES;
             completionBlock(YES, error);
@@ -148,18 +152,9 @@
                                                                                                    [imapSession setPort:993];
                                                                                                    [imapSession setAuthType:MCOAuthTypeXOAuth2];
                                                                                                    [imapSession setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
-                                                                                                   [imapSession setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
-                                                                                                       NSUInteger maxBytes = MIN(data.length, 100);
-                                                                                                       NSLog(@"[%p:%li]: %@", connectionID, type, [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, maxBytes)] encoding:NSUTF8StringEncoding]);
-//                                                                                                       NSLog(@"[%p:%li]: %@", connectionID, type, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-                                                                                                   }];
-//                                                                                                   [imapSession setOAuth2Token:[auth accessToken]];
-//                                                                                                   [imapSession setUsername:[auth userEmail]];
-                                                                                                   
-                                                                                                   
-                                                                                                   [auth setAccessToken:nil];
-                                                                                                   [auth setUserEmail:@""];
-                                                                                                   [auth setRefreshToken:@""];
+                                                                                                   [imapSession setConnectionLogger:_connectionLogger];
+                                                                                                   [imapSession setOAuth2Token:[auth accessToken]];
+                                                                                                   [imapSession setUsername:[auth userEmail]];
                                                                                                    
                                                                                                    _MC = imapSession;
                                                                                                    _GTMOAuth = auth;
@@ -272,6 +267,8 @@
     MCOIMAPSearchOperation * searchOp = [_MC searchExpressionOperationWithFolder:folder expression:expression];
     [searchOp start:^(NSError *error, MCOIndexSet *searchResult) {
         NSLog(@"Emails within last 90 days: [%d]: %@", searchResult.count, searchResult);
+        NSString * countStr = [[NSString alloc] initWithFormat:@"%d", searchResult.count];
+        [[NSNotificationCenter defaultCenter] postNotificationName:INThreadsPrefetchNotification object:nil userInfo:@{INThreadsPrefetchCountInfoKey:countStr}];
         MCOIMAPFetchMessagesOperation *fetchOperation = [_MC fetchMessagesOperationWithFolder:folder
                                                                                   requestKind:_requestKind
                                                                                          uids:searchResult];
@@ -391,12 +388,13 @@
     }
     
     if (found) {
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        dispatch_async(_messageQueue, ^{
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
             __block NSError * error;
             __block NSMutableArray * messagesDictionary = [[NSMutableArray alloc] init];
             @synchronized(_cacheLock) {
                 NSArray * fetchedMessages = [_cache objectForKey:threadIDString];
-                NSLog(@"MT messages [%d]: fetched messsages from cache: %lu", [NSThread isMainThread], (unsigned long)[fetchedMessages count]);
+                NSLog(@"MT messages [%d]: fetched messsages from cache for [threadId:%@]: %lu", [NSThread isMainThread], threadIDString, (unsigned long)[fetchedMessages count]);
                 for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
                     MTMessage * message = [[MTMessage alloc] initWithMessage:fetchedMessage];
                     
