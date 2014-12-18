@@ -21,6 +21,10 @@
 @implementation MailTalkAdapter {
     MCOIMAPMessagesRequestKind _requestKind;
 //    MCOIMAPSession * _MC2;
+    NSObject * _cacheLock;
+    NSMutableDictionary * _cache;
+    void (^_connectionLogger)(void * connectionID, MCOConnectionLogType type, NSData * data);
+    dispatch_queue_t _messageQueue;
 }
 
 - (id)init
@@ -37,6 +41,25 @@
     }
     
     _isAuthenticated = NO;
+    
+    _messageQueue = dispatch_queue_create("messageQueue", DISPATCH_QUEUE_SERIAL);
+    
+    _cacheLock = [[NSObject alloc] init];
+    @synchronized(_cacheLock) {
+        _cache = [[NSMutableDictionary alloc] init];
+    }
+    
+    _connectionLogger = ^(void * connectionID, MCOConnectionLogType type, NSData * data) {
+        NSString * dataStr;
+        if (data.length > 200) {
+            dataStr = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 100)] encoding:NSUTF8StringEncoding];
+            dataStr = [dataStr stringByAppendingString:@"..."];
+            dataStr = [dataStr stringByAppendingString:[[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(data.length-100, 100)] encoding:NSUTF8StringEncoding]];
+        } else {
+            dataStr = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, data.length)] encoding:NSUTF8StringEncoding];
+        }
+        NSLog(@"[%p:%i]: %@", connectionID, type, dataStr);
+    };
     
     _keychainName = @"MTOAuth2Token";
     _clientID = @"44193866924-dsqlj5easb9nl5kvl9i7cgk2846a82a6.apps.googleusercontent.com";
@@ -73,9 +96,7 @@
         //Move callbacks to a background thread, so they won't interfere with main thread - can cause deadlock issues
         //Also allows us to use semaphores to make asynchronous calls feel synchronous
         [imapSession setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
-        [imapSession setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
-            NSLog(@"%@", [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-        }];
+        [imapSession setConnectionLogger:_connectionLogger];
         _MC = imapSession;
         
 //        _MC2 = [[MCOIMAPSession alloc] init];
@@ -97,10 +118,11 @@
             completionBlock(NO, error);
         } else {
             NSLog(@"Retreived access token: %@", [auth accessToken]);
-            _isAuthenticated = YES;
             
             [_MC setOAuth2Token:[auth accessToken]];
             [_MC setUsername:[auth userEmail]];
+            
+            _isAuthenticated = YES;
             completionBlock(YES, error);
         }
     }];
@@ -130,11 +152,7 @@
                                                                                                    [imapSession setPort:993];
                                                                                                    [imapSession setAuthType:MCOAuthTypeXOAuth2];
                                                                                                    [imapSession setDispatchQueue:dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0)];
-                                                                                                   [imapSession setConnectionLogger:^(void * connectionID, MCOConnectionLogType type, NSData * data) {
-//                                                                                                       NSUInteger maxBytes = MIN(data.length, 100);
-//                                                                                                       NSLog(@"[%p:%li]: %@", connectionID, type, [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, maxBytes)] encoding:NSUTF8StringEncoding]);
-                                                                                                       NSLog(@"[%p:%li]: %@", connectionID, type, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-                                                                                                   }];
+                                                                                                   [imapSession setConnectionLogger:_connectionLogger];
                                                                                                    [imapSession setOAuth2Token:[auth accessToken]];
                                                                                                    [imapSession setUsername:[auth userEmail]];
                                                                                                    
@@ -249,9 +267,11 @@
     MCOIMAPSearchOperation * searchOp = [_MC searchExpressionOperationWithFolder:folder expression:expression];
     [searchOp start:^(NSError *error, MCOIndexSet *searchResult) {
         NSLog(@"Emails within last 90 days: [%d]: %@", searchResult.count, searchResult);
-        MCOIMAPFetchMessagesOperation *fetchOperation = [_MC fetchMessagesByNumberOperationWithFolder:folder
-                                                                                          requestKind:_requestKind
-                                                                                              numbers:searchResult];
+        NSString * countStr = [[NSString alloc] initWithFormat:@"%d", searchResult.count];
+        [[NSNotificationCenter defaultCenter] postNotificationName:INThreadsPrefetchNotification object:nil userInfo:@{INThreadsPrefetchCountInfoKey:countStr}];
+        MCOIMAPFetchMessagesOperation *fetchOperation = [_MC fetchMessagesOperationWithFolder:folder
+                                                                                  requestKind:_requestKind
+                                                                                         uids:searchResult];
         [fetchOperation start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
             NSAssert(![NSThread isMainThread], @"MT threads: fetch op should not be called on main thread.");
             
@@ -267,6 +287,16 @@
                         [threadsLookup setObject:existingThread forKey:gmailThreadID];
                     }
                     [existingThread addMessage:fetchedMessage];
+                    
+                    @synchronized(_cacheLock) {
+                        NSString * gmailThreadID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailThreadID]];
+                        NSMutableArray * existingMessagesForThread = [_cache objectForKey:gmailThreadID];
+                        if (existingMessagesForThread == nil) {
+                            existingMessagesForThread = [[NSMutableArray alloc] init];
+                            [_cache setObject:existingMessagesForThread forKey:gmailThreadID];
+                        }
+                        [existingMessagesForThread addObject:fetchedMessage];
+                    }
                 }
                 
                 NSMutableArray * threadsDictionary = [[NSMutableArray alloc] init];
@@ -278,7 +308,7 @@
                     [threadsDictionary addObject:threadDictionary];
                 }
                 
-                NSLog(@"MT threads: retrieved: %@", threadsDictionary);
+                NSLog(@"MT threads: retrieved: %lu", (unsigned long)threadsDictionary.count);
                 
                 NSData * json = [NSJSONSerialization dataWithJSONObject:threadsDictionary options:NSJSONWritingPrettyPrinted error:&error];
                 
@@ -350,62 +380,112 @@
     
     NSString * folder = @"[Gmail]/All Mail";
     NSString * threadIDString = (NSString *)[parameters objectForKey:@"thread_id"];
-    uint64_t threadID = [[[[NSNumberFormatter alloc] init] numberFromString:threadIDString] unsignedLongLongValue];
-    MCOIMAPSearchExpression * searchExpression = [MCOIMAPSearchExpression searchGmailThreadID:threadID];
     
-    MCOIMAPSearchOperation * searchOp = [_MC searchExpressionOperationWithFolder:folder expression:searchExpression];
-    [searchOp start:^(NSError *error, MCOIndexSet *searchResult) {
-        if (error == nil) {
+    __block BOOL found = NO;
+    @synchronized(_cacheLock) {
+        found = [_cache objectForKey:threadIDString] == nil ? NO : YES;
+        NSLog(@"Found %@ in cache: %d", threadIDString, found);
+    }
+    
+    if (found) {
+        dispatch_async(_messageQueue, ^{
+//        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+            __block NSError * error;
             __block NSMutableArray * messagesDictionary = [[NSMutableArray alloc] init];
+            @synchronized(_cacheLock) {
+                NSArray * fetchedMessages = [_cache objectForKey:threadIDString];
+                NSLog(@"MT messages [%d]: fetched messsages from cache for [threadId:%@]: %lu", [NSThread isMainThread], threadIDString, (unsigned long)[fetchedMessages count]);
+                for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
+                    MTMessage * message = [[MTMessage alloc] initWithMessage:fetchedMessage];
+                    
+                    
+                    __block NSString * snippet;
+                    snippet = @"";
+                    //                        Comment out for now. Figure out how to make faster. Too slow currently
+                    //                        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+                    //                        MCOIMAPMessageRenderingOperation * plainTextOp = [_MC2 plainTextBodyRenderingOperationWithMessage:fetchedMessage folder:folder stripWhitespace:YES];
+                    //                        [plainTextOp start:^(NSString *htmlString, NSError *error) {
+                    //                            if (error == nil) {
+                    //                                NSLog(@"MT messages: rendered body: %@", htmlString);
+                    //                                snippet = htmlString;
+                    //                            }
+                    //                            dispatch_semaphore_signal(semaphore);
+                    //                        }];
+                    //
+                    //                        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+                    [message setNamespaceID:namespaceID];
+                    [message setThreadID:threadIDString];
+                    [message setSnippet:snippet];
+                    //TODO: Set to body for now. Will change in future
+                    [message setBody:snippet];
+                    [messagesDictionary addObject:[message resourceDictionary]];
+                }
+            }
+            NSData * json = [NSJSONSerialization dataWithJSONObject:messagesDictionary options:NSJSONWritingPrettyPrinted error:&error];
             
-            NSLog(@"MT messages [%d]: search results: %@", [NSThread isMainThread], searchResult);
-            MCOIMAPFetchMessagesOperation * fetchMessagesOp = [_MC fetchMessagesOperationWithFolder:folder requestKind:_requestKind uids:searchResult];
-            [fetchMessagesOp start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
-                if (error == nil) {
-                    NSLog(@"MT messages [%d]: fetched messsages: %lu", [NSThread isMainThread], (unsigned long)[fetchedMessages count]);
-                    
-                    for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
-                        MTMessage * message = [[MTMessage alloc] initWithMessage:fetchedMessage];
-                        
-                        __block NSString * snippet;
-                        snippet = @"";
-//                        Comment out for now. Figure out how to make faster. Too slow currently
-//                        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-//                        MCOIMAPMessageRenderingOperation * plainTextOp = [_MC2 plainTextBodyRenderingOperationWithMessage:fetchedMessage folder:folder stripWhitespace:YES];
-//                        [plainTextOp start:^(NSString *htmlString, NSError *error) {
-//                            if (error == nil) {
-//                                NSLog(@"MT messages: rendered body: %@", htmlString);
-//                                snippet = htmlString;
-//                            }
-//                            dispatch_semaphore_signal(semaphore);
-//                        }];
-//                        
-//                        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
-                        [message setNamespaceID:namespaceID];
-                        [message setThreadID:threadIDString];
-                        [message setSnippet:snippet];
-                        //TODO: Set to body for now. Will change in future
-                        [message setBody:snippet];
-                        [messagesDictionary addObject:[message resourceDictionary]];
-                    }
-                    
-                    NSData * json = [NSJSONSerialization dataWithJSONObject:messagesDictionary options:NSJSONWritingPrettyPrinted error:&error];
-                    
+            if (error == nil) {
+                success(json, nil);
+            } else {
+                failure(NO, error);
+            }
+        });
+    } else {
+        uint64_t threadID = [[[[NSNumberFormatter alloc] init] numberFromString:threadIDString] unsignedLongLongValue];
+        MCOIMAPSearchExpression * searchExpression = [MCOIMAPSearchExpression searchGmailThreadID:threadID];
+        
+        MCOIMAPSearchOperation * searchOp = [_MC searchExpressionOperationWithFolder:folder expression:searchExpression];
+        [searchOp start:^(NSError *error, MCOIndexSet *searchResult) {
+            if (error == nil) {
+                __block NSMutableArray * messagesDictionary = [[NSMutableArray alloc] init];
+                
+                NSLog(@"MT messages [%d]: search results: %@", [NSThread isMainThread], searchResult);
+                MCOIMAPFetchMessagesOperation * fetchMessagesOp = [_MC fetchMessagesOperationWithFolder:folder requestKind:_requestKind uids:searchResult];
+                [fetchMessagesOp start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
                     if (error == nil) {
-                        success(json, nil);
+                        NSLog(@"MT messages [%d]: fetched messsages: %lu", [NSThread isMainThread], (unsigned long)[fetchedMessages count]);
+                        
+                        for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
+                            MTMessage * message = [[MTMessage alloc] initWithMessage:fetchedMessage];
+                            
+                            __block NSString * snippet;
+                            snippet = @"";
+                            //                        Comment out for now. Figure out how to make faster. Too slow currently
+                            //                        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+                            //                        MCOIMAPMessageRenderingOperation * plainTextOp = [_MC2 plainTextBodyRenderingOperationWithMessage:fetchedMessage folder:folder stripWhitespace:YES];
+                            //                        [plainTextOp start:^(NSString *htmlString, NSError *error) {
+                            //                            if (error == nil) {
+                            //                                NSLog(@"MT messages: rendered body: %@", htmlString);
+                            //                                snippet = htmlString;
+                            //                            }
+                            //                            dispatch_semaphore_signal(semaphore);
+                            //                        }];
+                            //
+                            //                        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+                            [message setNamespaceID:namespaceID];
+                            [message setThreadID:threadIDString];
+                            [message setSnippet:snippet];
+                            //TODO: Set to body for now. Will change in future
+                            [message setBody:snippet];
+                            [messagesDictionary addObject:[message resourceDictionary]];
+                        }
+                        
+                        NSData * json = [NSJSONSerialization dataWithJSONObject:messagesDictionary options:NSJSONWritingPrettyPrinted error:&error];
+                        
+                        if (error == nil) {
+                            success(json, nil);
+                        } else {
+                            failure(NO, error);
+                        }
                     } else {
+                        NSLog(@"MT messages: Error fetching for messages with gmailThreadID: %@", error);
                         failure(NO, error);
                     }
-                } else {
-                    NSLog(@"MT messages: Error fetching for messages with gmailThreadID: %@", error);
-                    failure(NO, error);
-                }
-            }];
-        } else {
-            NSLog(@"MT messages: Error searching for messages with gmailThreadID: %@", error);
-            failure(NO, error);
-        }
-    }];
-    
+                }];
+            } else {
+                NSLog(@"MT messages: Error searching for messages with gmailThreadID: %@", error);
+                failure(NO, error);
+            }
+        }];
+    }
 }
 @end

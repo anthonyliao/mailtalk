@@ -61,8 +61,15 @@
     NSString * lastTimestamp = [self getLastMessageTimestamp];
     NSArray * participants = [self getParticipants];
     NSArray * tags = [self getTags];
+    NSString * subject = [[first header] subject] == nil ? @"" : [[first header] subject];
+    NSAssert(gmailThreadID != nil, @"gmailThreadID can not be nil");
+    NSAssert(messageIDs != nil, @"messageIDs can not be nil");
+    NSAssert(lastTimestamp != nil, @"lastTimestamp can not be nil");
+    NSAssert(participants != nil, @"participants can not be nil");
+    NSAssert(tags != nil, @"tags can not be nil");
+    NSAssert(subject != nil, @"subject can not be nil");
     NSDictionary * resourceDict = @{@"id" : gmailThreadID,
-                                    @"subject" : [[first header] subject],
+                                    @"subject" : subject,
                                     @"message_ids" : messageIDs,
                                     @"created_at" : [NSNull null],
                                     @"last_accessed_at" : [NSNull null],
@@ -97,6 +104,7 @@
 
 - (NSArray *)getParticipants
 {
+    //TODO: add to, cc, bcc
     NSMutableArray * participants = [[NSMutableArray alloc] init];
     for (MCOIMAPMessage * message in _messages) {
         NSString * email = [[[message header] from] mailbox];

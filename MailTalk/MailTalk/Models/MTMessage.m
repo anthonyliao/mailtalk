@@ -33,7 +33,7 @@
 {
     NSString * messageID = [NSString stringWithFormat:@"%llu", [_message gmailMessageID]];
     MCOMessageHeader * header = [_message header];
-    NSString * subject = [header subject];
+    NSString * subject = [header subject] == nil ? @"" : [header subject];
     NSArray * from = [self getParticipants:@[[header from]]];
     NSArray * bcc = [self getParticipants:[header bcc]];
     NSArray * cc = [self getParticipants:[header cc]];
@@ -42,6 +42,7 @@
     NSNumber * unread = ([_message flags] & MCOMessageFlagSeen) ? [NSNumber numberWithBool:NO] : [NSNumber numberWithBool:YES];
     NSArray * fileIds = [[NSArray alloc] init];
     NSArray * files = [[NSArray alloc] init];
+    NSAssert(subject != nil, @"subject can not be nil");
     NSDictionary * resourceDict = @{@"id" : messageID,
                                     @"subject" : subject,
                                     @"thread_id" : [self threadID],

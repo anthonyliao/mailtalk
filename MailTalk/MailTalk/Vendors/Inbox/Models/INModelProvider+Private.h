@@ -9,7 +9,7 @@
 @interface INModelProvider (Private)
 
 - (NSPredicate*)fetchPredicate;
-- (void)fetchFromCache;
+- (void)fetchFromCache:(VoidBlock)callback;
 - (void)fetchFromAPI;
 - (NSDictionary *)queryParamsForPredicate:(NSPredicate*)predicate;
 

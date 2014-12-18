@@ -44,7 +44,11 @@
 
 - (void)refresh
 {
-	[super refresh];
+//    [super refresh];
+    [self fetchFromCache:^{
+//        if (_itemCachePolicy == INModelProviderCacheThenNetwork)
+            [self fetchFromAPI];
+    }];
 }
 
 - (void)countUnreadItemsWithCallback:(LongBlock)callback
