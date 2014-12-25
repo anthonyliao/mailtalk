@@ -42,6 +42,7 @@
     NSNumber * unread = ([_message flags] & MCOMessageFlagSeen) ? [NSNumber numberWithBool:NO] : [NSNumber numberWithBool:YES];
     NSArray * fileIds = [[NSArray alloc] init];
     NSArray * files = [[NSArray alloc] init];
+    NSObject * inReplyTo = [self inReplyTo] == nil ? [NSNull null] : [self inReplyTo];
     NSAssert(subject != nil, @"subject can not be nil");
     NSDictionary * resourceDict = @{@"id" : messageID,
                                     @"subject" : subject,
@@ -58,6 +59,7 @@
                                     @"updated_at" : [NSNull null],
                                     @"namespace_id" : [self namespaceID],
                                     @"file_ids" : fileIds,
+                                    @"inReplyTo" : inReplyTo,
                                     @"unread" : unread,
                                     @"to" : to
                                     };

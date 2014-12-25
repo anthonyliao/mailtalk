@@ -16,6 +16,7 @@
 @property (nonatomic, strong) NSString * threadID;
 @property (nonatomic, strong) NSString * snippet;
 @property (nonatomic, strong) NSString * body;
+@property (nonatomic, strong) NSString * inReplyTo;
 
 /**
  Init with this message

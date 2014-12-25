@@ -30,6 +30,7 @@
 	 @"to": @"to",
 	 @"cc": @"cc",
 	 @"bcc": @"bcc",
+     @"inReplyTo": @"inReplyTo",
 	 @"unread": @"unread",
 	}];
 	return mapping;
@@ -42,7 +43,7 @@
 
 + (NSArray *)databaseIndexProperties
 {
-	return [[super databaseIndexProperties] arrayByAddingObjectsFromArray: @[@"threadID", @"subject", @"date"]];
+	return [[super databaseIndexProperties] arrayByAddingObjectsFromArray: @[@"threadID", @"subject", @"date", @"inReplyTo"]];
 }
 
 - (INThread*)thread

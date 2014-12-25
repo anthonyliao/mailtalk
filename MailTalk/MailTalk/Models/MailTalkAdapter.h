@@ -25,13 +25,7 @@ static NSString * INThreadsPrefetchCountInfoKey = @"INThreadsPrefetchCountInfoKe
  Normally, InboxApp classes interface with the Inbox REST API over AFNetworking
  MailTalkAdapter replaces the API by serving as a middleman that interfaces with MailCore
  */
-@interface MailTalkAdapter : NSObject {
-    NSString * _keychainName;
-    NSString * _clientID;
-    NSString * _clientSecret;
-    BOOL _isMCConnected;
-    BOOL _isAuthenticated;
-}
+@interface MailTalkAdapter : NSObject 
 
 @property (nonatomic, strong) MCOIMAPSession * MC;
 @property (nonatomic, strong) GTMOAuth2Authentication * GTMOAuth;

@@ -19,10 +19,16 @@
 #import "MTMessage.h"
 
 @implementation MailTalkAdapter {
+    NSString * _keychainName;
+    NSString * _clientID;
+    NSString * _clientSecret;
+    BOOL _isMCConnected;
+    BOOL _isAuthenticated;
     MCOIMAPMessagesRequestKind _requestKind;
 //    MCOIMAPSession * _MC2;
     NSObject * _cacheLock;
     NSMutableDictionary * _cache;
+    NSMutableDictionary * _messageIDToGmailIDCache;
     void (^_connectionLogger)(void * connectionID, MCOConnectionLogType type, NSData * data);
     dispatch_queue_t _messageQueue;
 }
@@ -47,6 +53,7 @@
     _cacheLock = [[NSObject alloc] init];
     @synchronized(_cacheLock) {
         _cache = [[NSMutableDictionary alloc] init];
+        _messageIDToGmailIDCache = [[NSMutableDictionary alloc] init];
     }
     
     _connectionLogger = ^(void * connectionID, MCOConnectionLogType type, NSData * data) {
@@ -296,6 +303,10 @@
                             [_cache setObject:existingMessagesForThread forKey:gmailThreadID];
                         }
                         [existingMessagesForThread addObject:fetchedMessage];
+                        
+                        NSString * gmailMessageID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailMessageID]];
+                        NSString * messageID = [[fetchedMessage header] messageID];
+                        [_messageIDToGmailIDCache setObject:gmailMessageID forKey:messageID];
                     }
                 }
                 
@@ -397,24 +408,12 @@
                 NSLog(@"MT messages [%d]: fetched messsages from cache for [threadId:%@]: %lu", [NSThread isMainThread], threadIDString, (unsigned long)[fetchedMessages count]);
                 for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
                     MTMessage * message = [[MTMessage alloc] initWithMessage:fetchedMessage];
-                    
-                    
-                    __block NSString * snippet;
-                    snippet = @"";
-                    //                        Comment out for now. Figure out how to make faster. Too slow currently
-                    //                        dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
-                    //                        MCOIMAPMessageRenderingOperation * plainTextOp = [_MC2 plainTextBodyRenderingOperationWithMessage:fetchedMessage folder:folder stripWhitespace:YES];
-                    //                        [plainTextOp start:^(NSString *htmlString, NSError *error) {
-                    //                            if (error == nil) {
-                    //                                NSLog(@"MT messages: rendered body: %@", htmlString);
-                    //                                snippet = htmlString;
-                    //                            }
-                    //                            dispatch_semaphore_signal(semaphore);
-                    //                        }];
-                    //
-                    //                        dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+                    NSString * snippet = @"";
                     [message setNamespaceID:namespaceID];
                     [message setThreadID:threadIDString];
+                    NSString * inReplyToMessageID = (NSString *)[[[fetchedMessage header] inReplyTo] firstObject];
+                    NSString * inReplyTo = [_messageIDToGmailIDCache objectForKey:inReplyToMessageID];
+                    [message setInReplyTo:inReplyTo];
                     [message setSnippet:snippet];
                     //TODO: Set to body for now. Will change in future
                     [message setBody:snippet];
