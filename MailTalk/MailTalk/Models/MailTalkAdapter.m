@@ -232,6 +232,8 @@
 - (void)unauthenticate
 {
     _isAuthenticated = NO;
+    [_cache removeAllObjects];
+    [_messageIDToGmailIDCache removeAllObjects];
     [GTMOAuth2ViewControllerTouch removeAuthFromKeychainForName:_keychainName];
     [GTMOAuth2ViewControllerTouch revokeTokenForGoogleAuthentication:_GTMOAuth];
 }

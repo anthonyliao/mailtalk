@@ -45,6 +45,14 @@ static NSMapTable * modelInstanceTable;
 	}
 }
 
++ (void)resetAllInstances
+{
+    @synchronized(modelInstanceTable) {
+        [modelInstanceTable removeAllObjects];
+        modelInstanceTable = nil;
+    }
+}
+
 + (NSString *)attachmentKeyForClass:(Class)klass ID:(id)ID
 {
 	if ([ID isKindOfClass:[NSNumber class]])

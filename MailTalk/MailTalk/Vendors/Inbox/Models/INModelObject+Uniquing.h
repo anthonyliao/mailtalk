@@ -45,6 +45,11 @@
 + (void)attachInstance:(INModelObject *)obj;
 
 /**
+ Resets all instances in memory
+ */
++ (void)resetAllInstances;
+
+/**
  @return A copy of the INModelObject that is not attached to the instance table. 
  This is useful if you want to clone an object to modify it and keep two versions alive.
 */

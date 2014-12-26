@@ -15,6 +15,7 @@
 #import "NSError+InboxErrors.h"
 #import "AFNetworkActivityIndicatorManager.h"
 #import "MailTalkAdapter.h"
+#import "INModelObject+Uniquing.h"
 
 #define OPERATIONS_FILE [@"~/Documents/operations.plist" stringByExpandingTildeInPath]
 
@@ -442,6 +443,7 @@ static void initialize_INAPIManager() {
 //    [[_AF requestSerializer] clearAuthorizationHeader];
     [_MT unauthenticate];
     [[INDatabaseManager shared] resetDatabase];
+    [[INModelObject class] resetAllInstances];
     _namespaces = nil;
     
     [[NSNotificationCenter defaultCenter] postNotificationName:INTaskQueueChangedNotification object:nil];
