@@ -130,12 +130,12 @@
 {
     //TODO: comment out for now.
     //Currently goes to DB, then API, then DB again. Too many DB calls. Need to optimize this especially when fetching a lot of messages on thread
-//	[self fetchFromCache:^{
-//        if (_itemCachePolicy == INModelProviderCacheThenNetwork)
-//            [self fetchFromAPI];
-//    }];
+	[self fetchFromCache:^{
+        if (_itemCachePolicy == INModelProviderCacheThenNetwork)
+            [self fetchFromAPI];
+    }];
 
-    [self fetchFromAPI];
+//    [self fetchFromAPI];
     
 	[self markPerformedSelector: @selector(refresh)];
 }
