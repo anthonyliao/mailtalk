@@ -65,7 +65,7 @@
         } else {
             dataStr = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, data.length)] encoding:NSUTF8StringEncoding];
         }
-        NSLog(@"[%p:%i]: %@", connectionID, type, dataStr);
+//        NSLog(@"[%p:%i]: %@", connectionID, type, dataStr);
     };
     
     _keychainName = @"MTOAuth2Token";

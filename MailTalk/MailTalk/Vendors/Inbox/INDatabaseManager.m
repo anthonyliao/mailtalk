@@ -257,7 +257,7 @@ static void initialize_INDatabaseManager() {
 		}];
 
 		if (!willResave) {
-			dispatch_async(dispatch_get_main_queue(), ^{
+			dispatch_sync(dispatch_get_main_queue(), ^{
 				// notify providers that models were updated. This may result in views being updated.
 				[[_observers setRepresentation] makeObjectsPerformSelector:@selector(managerDidUnpersistModels:) withObject:@[model]];
 			});
@@ -296,7 +296,7 @@ static void initialize_INDatabaseManager() {
 					NSLog(@"Skipped %d models in local cache transaction because the cache table(s) could not be prepared.", skipped);
 			}
         }];
-        dispatch_async(dispatch_get_main_queue(), completion);
+        dispatch_sync(dispatch_get_main_queue(), completion);
     });
 
 }
@@ -449,7 +449,7 @@ static void initialize_INDatabaseManager() {
 
 - (void)selectModelsOfClass:(Class)klass withQuery:(NSString *)query andParameters:(NSDictionary *)arguments andCallback:(ResultsBlock)callback
 {
-	dispatch_async(_queryDispatchQueue, ^{
+	dispatch_sync(_queryDispatchQueue, ^{
         [self selectModelsOfClassSync:klass withQuery:query andParameters:arguments andCallback:callback];
 	});
 }
@@ -530,7 +530,7 @@ static void initialize_INDatabaseManager() {
     if ([[NSThread currentThread] isMainThread])
         processResults();
     else
-        dispatch_async(dispatch_get_main_queue(), processResults);
+        dispatch_sync(dispatch_get_main_queue(), processResults);
 }
 
 - (void)countModelsOfClass:(Class)klass matching:(NSPredicate *)wherePredicate withCallback:(LongBlock)callback
