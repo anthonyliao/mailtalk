@@ -39,8 +39,8 @@ the documentation for INThread.
 @property (nonatomic, strong) NSArray * cc;
 @property (nonatomic, strong) NSArray * bcc;
 @property (nonatomic, strong) NSString * inReplyTo;
+@property (nonatomic, strong) NSString * modSeq;
 @property (nonatomic, assign) BOOL unread;
-@property (nonatomic, assign) NSString * modSeq;
 
 /*
  @return The parent thread of this message. Depending on how this message instance was

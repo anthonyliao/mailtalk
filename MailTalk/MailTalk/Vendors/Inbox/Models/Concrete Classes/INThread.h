@@ -43,8 +43,8 @@ If you're looking to create a new thread, see INDraft.
 @property (nonatomic, strong) NSArray * messageIDs;
 @property (nonatomic, strong) NSArray * draftIDs;
 @property (nonatomic, strong) NSArray * tagIDs;
+@property (nonatomic, strong) NSString * highestModSeq;
 @property (nonatomic, assign) BOOL unread;
-@property (nonatomic, assign) NSString * highestModSeq;
 
 /*
 @return An array of INTag objects for the tags on this thread.
