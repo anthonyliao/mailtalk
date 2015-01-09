@@ -10,9 +10,7 @@
 
 @class MCOIMAPMessage;
 
-@interface MTThread : NSObject {
-    NSMutableArray * _messages;
-}
+@interface MTThread : NSObject
 
 @property (nonatomic, strong) NSString * namespaceID;
 

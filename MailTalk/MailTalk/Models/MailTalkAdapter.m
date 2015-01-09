@@ -18,6 +18,8 @@
 #import "MTThread.h"
 #import "MTMessage.h"
 
+static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
+
 @implementation MailTalkAdapter {
     NSString * _keychainName;
     NSString * _clientID;
@@ -30,7 +32,12 @@
     NSMutableDictionary * _cache;
     NSMutableDictionary * _messageIDToGmailIDCache;
     void (^_connectionLogger)(void * connectionID, MCOConnectionLogType type, NSData * data);
+    //The queue on which we defer MTMessage -> JSON -> INMessage construction and persistence
     dispatch_queue_t _messageQueue;
+    //Compare against server's. If different, our UID cache is invalid. We must trash everything and rebuild
+    uint32_t _uidvalidity;
+    //Allows us to fetch deltas from server.
+    uint64_t _highestModSeq;
 }
 
 - (id)init
@@ -56,15 +63,18 @@
         _messageIDToGmailIDCache = [[NSMutableDictionary alloc] init];
     }
     
+    _uidvalidity = 0;
+    _highestModSeq = 0;
+    
     _connectionLogger = ^(void * connectionID, MCOConnectionLogType type, NSData * data) {
         NSString * dataStr;
-        if (data.length > 200) {
-            dataStr = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 100)] encoding:NSUTF8StringEncoding];
-            dataStr = [dataStr stringByAppendingString:@"..."];
-            dataStr = [dataStr stringByAppendingString:[[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(data.length-100, 100)] encoding:NSUTF8StringEncoding]];
-        } else {
+//        if (data.length > 200) {
+//            dataStr = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, 100)] encoding:NSUTF8StringEncoding];
+//            dataStr = [dataStr stringByAppendingString:@"..."];
+//            dataStr = [dataStr stringByAppendingString:[[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(data.length-100, 100)] encoding:NSUTF8StringEncoding]];
+//        } else {
             dataStr = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, data.length)] encoding:NSUTF8StringEncoding];
-        }
+//        }
 //        NSLog(@"[%p:%i]: %@", connectionID, type, dataStr);
     };
     
@@ -73,8 +83,8 @@
     _clientSecret = @"ehPi3wnIWhjso4WntmYQcSKH";
     _requestKind = MCOIMAPMessagesRequestKindUid |
     MCOIMAPMessagesRequestKindFlags |
-    MCOIMAPMessagesRequestKindHeaders |
-    MCOIMAPMessagesRequestKindStructure |
+//    MCOIMAPMessagesRequestKindHeaders |
+//    MCOIMAPMessagesRequestKindStructure |
     //    MCOIMAPMessagesRequestKindInternalDate |
     MCOIMAPMessagesRequestKindFullHeaders |
     //    MCOIMAPMessagesRequestKindHeaderSubject |
@@ -234,6 +244,8 @@
     _isAuthenticated = NO;
     [_cache removeAllObjects];
     [_messageIDToGmailIDCache removeAllObjects];
+    _uidvalidity = 0;
+    _highestModSeq = 0;
     [GTMOAuth2ViewControllerTouch removeAuthFromKeychainForName:_keychainName];
     [GTMOAuth2ViewControllerTouch revokeTokenForGoogleAuthentication:_GTMOAuth];
 }
@@ -266,122 +278,157 @@
 {
     NSLog(@"MT threads: namespace:%@, params:%@", namespaceID, parameters);
     
-    NSString * folder = @"[Gmail]/All Mail";
-    
-//    MCOIndexSet *uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
-    NSDate * threeMonthsAgo = [[[NSDate alloc] init] dateByAddingTimeInterval:-90*24*60*60];
-    MCOIMAPSearchExpression * expression = [MCOIMAPSearchExpression searchOr:[MCOIMAPSearchExpression searchSinceDate:threeMonthsAgo]
-                                                                       other:[MCOIMAPSearchExpression searchSinceReceivedDate:threeMonthsAgo]];
-    expression = [MCOIMAPSearchExpression searchSinceDate:threeMonthsAgo];
-    MCOIMAPSearchOperation * searchOp = [_MC searchExpressionOperationWithFolder:folder expression:expression];
-    [searchOp start:^(NSError *error, MCOIndexSet *searchResult) {
-        NSLog(@"Emails within last 90 days: [%d]: %@", searchResult.count, searchResult);
-        NSString * countStr = [[NSString alloc] initWithFormat:@"%d", searchResult.count];
-        [[NSNotificationCenter defaultCenter] postNotificationName:INThreadsPrefetchNotification object:nil userInfo:@{INThreadsPrefetchCountInfoKey:countStr}];
-        MCOIMAPFetchMessagesOperation *fetchOperation = [_MC fetchMessagesOperationWithFolder:folder
-                                                                                  requestKind:_requestKind
-                                                                                         uids:searchResult];
-        [fetchOperation start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
-            NSAssert(![NSThread isMainThread], @"MT threads: fetch op should not be called on main thread.");
+    MCOIMAPFolderStatusOperation * folderStatusOp = [_MC folderStatusOperation:GMAIL_FOLDER];
+    [folderStatusOp start:^(NSError *error, MCOIMAPFolderStatus *status) {
+        if (_uidvalidity != [status uidValidity] || _highestModSeq == 0) {
+            NSLog(@"MT threads: new refresh, pull all emails");
+            _uidvalidity = [status uidValidity];
+            _highestModSeq = [status highestModSeqValue];
             
-            if (error == nil) {
-                NSMutableDictionary * threadsLookup = [[NSMutableDictionary alloc] initWithCapacity:[fetchedMessages count]];
-                
-                for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
-                    NSString * gmailThreadID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailThreadID]];
-                    MTThread * existingThread = (MTThread *)[threadsLookup objectForKey:gmailThreadID];
-                    if (existingThread == nil) {
-                        existingThread = [[MTThread alloc] init];
-                        [existingThread setNamespaceID:[_GTMOAuth userEmail]];
-                        [threadsLookup setObject:existingThread forKey:gmailThreadID];
-                    }
-                    [existingThread addMessage:fetchedMessage];
-                    
-                    @synchronized(_cacheLock) {
-                        NSString * gmailThreadID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailThreadID]];
-                        NSMutableArray * existingMessagesForThread = [_cache objectForKey:gmailThreadID];
-                        if (existingMessagesForThread == nil) {
-                            existingMessagesForThread = [[NSMutableArray alloc] init];
-                            [_cache setObject:existingMessagesForThread forKey:gmailThreadID];
-                        }
-                        [existingMessagesForThread addObject:fetchedMessage];
-                        
-                        NSString * gmailMessageID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailMessageID]];
-                        NSString * messageID = [[fetchedMessage header] messageID];
-                        [_messageIDToGmailIDCache setObject:gmailMessageID forKey:messageID];
-                    }
-                }
-                
-                NSMutableArray * threadsDictionary = [[NSMutableArray alloc] init];
-                NSEnumerator * threadLookupEnumerator = [threadsLookup objectEnumerator];
-                id thread;
-                
-                while (thread = [threadLookupEnumerator nextObject]) {
-                    NSDictionary * threadDictionary = [(MTThread *)thread resourceDictionary];
-                    [threadsDictionary addObject:threadDictionary];
-                }
-                
-                NSLog(@"MT threads: retrieved: %lu", (unsigned long)threadsDictionary.count);
-                
-                NSData * json = [NSJSONSerialization dataWithJSONObject:threadsDictionary options:NSJSONWritingPrettyPrinted error:&error];
-                
-                if (error == nil) {
-                    success(json, nil);
-                } else {
-                    failure(NO, error);
-                }
-            } else {
-                NSLog(@"MT threads: Error downloading threads via MailCore: %@", error);
-                failure(NO, error);
+            //2 scenarios here:
+            //a. First sync, start from scratch
+            //b. Subsequent sync but UID cache is invalid, start from scratch
+            @synchronized(_cacheLock) {
+                [_cache removeAllObjects];
+                [_messageIDToGmailIDCache removeAllObjects];
             }
-        }];
-        
+            
+            NSDate * threeMonthsAgo = [[[NSDate alloc] init] dateByAddingTimeInterval:-90*24*60*60];
+            MCOIMAPSearchExpression * expression = [MCOIMAPSearchExpression searchOr:[MCOIMAPSearchExpression searchSinceDate:threeMonthsAgo]
+                                                                               other:[MCOIMAPSearchExpression searchSinceReceivedDate:threeMonthsAgo]];
+            MCOIMAPSearchOperation * searchOp = [_MC searchExpressionOperationWithFolder:GMAIL_FOLDER expression:expression];
+            [searchOp start:^(NSError *error, MCOIndexSet *searchResult) {
+                NSLog(@"Emails within last 90 days: [%d]: %@", searchResult.count, searchResult);
+                
+                NSString * countStr = [[NSString alloc] initWithFormat:@"%d", searchResult.count];
+                [[NSNotificationCenter defaultCenter] postNotificationName:INThreadsPrefetchNotification object:nil userInfo:@{INThreadsPrefetchCountInfoKey:countStr}];
+                
+                MCOIMAPFetchMessagesOperation *fetchOperation = [_MC fetchMessagesOperationWithFolder:GMAIL_FOLDER
+                                                                                          requestKind:_requestKind
+                                                                                                 uids:searchResult];
+                [fetchOperation start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
+                    NSAssert(![NSThread isMainThread], @"MT threads: fetch op should not be called on main thread.");
+                    
+                    if (error == nil) {
+                        for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
+                            NSString * gmailThreadID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailThreadID]];
+                            NSString * gmailMessageID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailMessageID]];
+                            
+                            @synchronized(_cacheLock) {
+                                NSMutableArray * existingMessagesForThread = [_cache objectForKey:gmailThreadID];
+                                if (existingMessagesForThread == nil) {
+                                    existingMessagesForThread = [[NSMutableArray alloc] init];
+                                    [_cache setObject:existingMessagesForThread forKey:gmailThreadID];
+                                }
+                                [existingMessagesForThread addObject:fetchedMessage];
+                                
+                                NSString * messageID = [[fetchedMessage header] messageID];
+                                [_messageIDToGmailIDCache setObject:gmailMessageID forKey:messageID];
+                            }
+                        }
+                        
+                        NSMutableArray * dictionaryRepresentionOfThreads = [[NSMutableArray alloc] init];
+                        
+                        NSEnumerator * threadsEnumerator = [_cache objectEnumerator];
+                        NSMutableArray * messagesForThread;
+                        
+                        while (messagesForThread = [threadsEnumerator nextObject]) {
+                            MTThread * newThread = [[MTThread alloc] init];
+                            [newThread setNamespaceID:[_GTMOAuth userEmail]];
+                            for (MCOIMAPMessage * messageForThread in messagesForThread) {
+                                [newThread addMessage:messageForThread];
+                            }
+                            NSDictionary * dictionaryForNewThread = [newThread resourceDictionary];
+                            [dictionaryRepresentionOfThreads addObject:dictionaryForNewThread];
+//                            NSLog(@"%@", dictionaryForNewThread);
+                        }
+                        
+                        NSLog(@"MT threads: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
+                        
+                        NSData * json = [NSJSONSerialization dataWithJSONObject:dictionaryRepresentionOfThreads options:NSJSONWritingPrettyPrinted error:&error];
+                        
+                        if (error == nil) {
+                            success(json, nil);
+                        } else {
+                            failure(NO, error);
+                        }
+                    } else {
+                        NSLog(@"MT threads: Error downloading threads via MailCore: %@", error);
+                        failure(NO, error);
+                    }
+                }];
+                
+            }];
+        } else {
+            //Fetch deltas since our last sync
+            if (_highestModSeq < [status highestModSeqValue]) {
+                NSLog(@"MT threads: delta sync: clientModSeq:%llu, serverModSeq:%llu", _highestModSeq, [status highestModSeqValue]);
+                MCOIndexSet * uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
+                MCOIMAPFetchMessagesOperation * syncOp = [_MC syncMessagesWithFolder:GMAIL_FOLDER requestKind:_requestKind uids:uids modSeq:_highestModSeq];
+                [syncOp start:^(NSError *error, NSArray *deltaMessages, MCOIndexSet *deletedMessages) {
+                    NSLog(@"MT threads: delta sync: add/modified messages count:%llu, removed messages count:%d", (unsigned long long)deltaMessages.count, deletedMessages.count);
+                    if (error == nil) {
+                        NSMutableSet * deltaThreads = [[NSMutableSet alloc] init];
+                        for (MCOIMAPMessage * deltaMessage in deltaMessages) {
+                            NSString * gmailThreadID = [[NSString alloc] initWithFormat:@"%llu", [deltaMessage gmailThreadID]];
+                            NSString * gmailMessageID = [[NSString alloc] initWithFormat:@"%llu", [deltaMessage gmailMessageID]];
+                            
+                            //Update our cache for new/modified messages
+                            @synchronized(_cacheLock) {
+                                NSMutableArray * existingMessagesForThread = [_cache objectForKey:gmailThreadID];
+                                if (existingMessagesForThread == nil) {
+                                    existingMessagesForThread = [[NSMutableArray alloc] init];
+                                    [_cache setObject:existingMessagesForThread forKey:gmailThreadID];
+                                }
+                                NSMutableArray * messagesToDelete = [[NSMutableArray alloc] init];
+                                for (MCOIMAPMessage * existingMessage in existingMessagesForThread) {
+                                    if ([existingMessage gmailMessageID] == [deltaMessage gmailMessageID]) {
+                                        [messagesToDelete addObject:existingMessage];
+                                    }
+                                }
+                                [existingMessagesForThread removeObjectsInArray:messagesToDelete];
+                                [existingMessagesForThread addObject:deltaMessage];
+                                //Keep track of threads that were updated
+                                [deltaThreads addObject:existingMessagesForThread];
+                                
+                                NSString * messageID = [[deltaMessage header] messageID];
+                                [_messageIDToGmailIDCache setObject:gmailMessageID forKey:messageID];
+                            }
+                            
+                        }
+                        NSMutableArray * dictionaryRepresentionOfThreads = [[NSMutableArray alloc] init];
+                        
+                        NSEnumerator * threadsEnumerator = [_cache objectEnumerator];
+                        NSMutableArray * messagesForThread;
+                        
+                        while (messagesForThread = [threadsEnumerator nextObject]) {
+                            MTThread * newThread = [[MTThread alloc] init];
+                            [newThread setNamespaceID:[_GTMOAuth userEmail]];
+                            for (MCOIMAPMessage * messageForThread in messagesForThread) {
+                                [newThread addMessage:messageForThread];
+                            }
+                            NSDictionary * dictionaryForNewThread = [newThread resourceDictionary];
+                            [dictionaryRepresentionOfThreads addObject:dictionaryForNewThread];
+//                            NSLog(@"%@", dictionaryForNewThread);
+                        }
+                        
+                        NSLog(@"MT threads: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
+                        
+                        NSData * json = [NSJSONSerialization dataWithJSONObject:dictionaryRepresentionOfThreads options:NSJSONWritingPrettyPrinted error:&error];
+                        
+                        if (error == nil) {
+                            success(json, nil);
+                        } else {
+                            failure(NO, error);
+                        }
+                    } else {
+                        NSLog(@"MT threads: delta sync: Error downloading threads via MailCore: %@", error);
+                        failure(NO, error);
+                    }
+                }];
+            }
+        }
     }];
-    
-//    MCOIMAPFetchMessagesOperation *fetchOperation = [_MC fetchMessagesByNumberOperationWithFolder:folder
-//                                                                                      requestKind:_requestKind
-//                                                                                          numbers:uids];
-    
-//    [fetchOperation start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
-//        NSAssert(![NSThread isMainThread], @"MT threads: fetch op should not be called on main thread.");
-//        
-//        if (error == nil) {
-//            NSMutableDictionary * threadsLookup = [[NSMutableDictionary alloc] initWithCapacity:[fetchedMessages count]];
-//            
-//            for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
-//                NSString * gmailThreadID = [[NSString alloc] initWithFormat:@"%llu", [fetchedMessage gmailThreadID]];
-//                MTThread * existingThread = (MTThread *)[threadsLookup objectForKey:gmailThreadID];
-//                if (existingThread == nil) {
-//                    existingThread = [[MTThread alloc] init];
-//                    [existingThread setNamespaceID:[_GTMOAuth userEmail]];
-//                    [threadsLookup setObject:existingThread forKey:gmailThreadID];
-//                }
-//                [existingThread addMessage:fetchedMessage];
-//            }
-//            
-//            NSMutableArray * threadsDictionary = [[NSMutableArray alloc] init];
-//            NSEnumerator * threadLookupEnumerator = [threadsLookup objectEnumerator];
-//            id thread;
-//            
-//            while (thread = [threadLookupEnumerator nextObject]) {
-//                NSDictionary * threadDictionary = [(MTThread *)thread resourceDictionary];
-//                [threadsDictionary addObject:threadDictionary];
-//            }
-//            
-//            NSLog(@"MT threads: retrieved: %@", threadsDictionary);
-//            
-//            NSData * json = [NSJSONSerialization dataWithJSONObject:threadsDictionary options:NSJSONWritingPrettyPrinted error:&error];
-//            
-//            if (error == nil) {
-//                success(json, nil);
-//            } else {
-//                failure(NO, error);
-//            }
-//        } else {
-//            NSLog(@"MT threads: Error downloading threads via MailCore: %@", error);
-//            failure(NO, error);
-//        }
-//    }];
 }
 
 - (void)getMessagesWithNamespace:(NSString *)namespaceID

@@ -13,7 +13,9 @@
 #import "MCOAddress.h"
 #import "MTTag.h"
 
-@implementation MTThread
+@implementation MTThread {
+    NSMutableArray * _messages;
+}
 
 - (id)init
 {
@@ -128,6 +130,11 @@
             if ([tags objectForKey:currentTag] == nil) {
                 [tags setObject:@"" forKey:[MTTag translateTag:currentTag]];
             }
+        }
+        if ([message flags] & MCOMessageFlagSeen) {
+        } else {
+            [tags setObject:@"" forKey:@"unseen"];
+            [tags setObject:@"" forKey:@"unread"];
         }
     }
     return [tags allKeys];
