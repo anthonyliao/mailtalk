@@ -64,12 +64,14 @@
     NSArray * participants = [self getParticipants];
     NSArray * tags = [self getTags];
     NSString * subject = [[first header] subject] == nil ? @"" : [[first header] subject];
+    NSString * highestModSeq = [self getHighestModSeq];
     NSAssert(gmailThreadID != nil, @"gmailThreadID can not be nil");
     NSAssert(messageIDs != nil, @"messageIDs can not be nil");
     NSAssert(lastTimestamp != nil, @"lastTimestamp can not be nil");
     NSAssert(participants != nil, @"participants can not be nil");
     NSAssert(tags != nil, @"tags can not be nil");
     NSAssert(subject != nil, @"subject can not be nil");
+    NSAssert(highestModSeq != nil, @"highestModSeq can not be nil");
     NSDictionary * resourceDict = @{@"id" : gmailThreadID,
                                     @"subject" : subject,
                                     @"message_ids" : messageIDs,
@@ -81,8 +83,10 @@
                                     @"updated_at" : [NSNull null],
                                     @"namespace_id" : [self namespaceID],
                                     @"draft_ids" : [NSNull null],
-                                    @"last_message_timestamp" : lastTimestamp
+                                    @"last_message_timestamp" : lastTimestamp,
+                                    @"highestModSeq" : highestModSeq
                                     };
+//    NSLog(@"%@", resourceDict);
     return resourceDict;
 }
 
@@ -138,6 +142,15 @@
         }
     }
     return [tags allKeys];
+}
+
+- (NSString *)getHighestModSeq
+{
+    uint64_t highestModSeq = 0;
+    for (MCOIMAPMessage * message in _messages) {
+        highestModSeq = MAX(highestModSeq, [message modSeqValue]);
+    }
+    return [NSString stringWithFormat:@"%llu", highestModSeq];
 }
 
 @end

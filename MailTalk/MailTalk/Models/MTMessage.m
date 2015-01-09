@@ -43,7 +43,9 @@
     NSArray * fileIds = [[NSArray alloc] init];
     NSArray * files = [[NSArray alloc] init];
     NSObject * inReplyTo = [self inReplyTo] == nil ? [NSNull null] : [self inReplyTo];
+    NSString * modSeq = [NSString stringWithFormat:@"%llu", [_message modSeqValue]];
     NSAssert(subject != nil, @"subject can not be nil");
+    NSAssert(modSeq != nil, @"modSeq can not be nil");
     NSDictionary * resourceDict = @{@"id" : messageID,
                                     @"subject" : subject,
                                     @"thread_id" : [self threadID],
@@ -61,7 +63,8 @@
                                     @"file_ids" : fileIds,
                                     @"inReplyTo" : inReplyTo,
                                     @"unread" : unread,
-                                    @"to" : to
+                                    @"to" : to,
+                                    @"modSeq": modSeq
                                     };
 //    NSLog(@"%@", resourceDict);
     return resourceDict;

@@ -23,7 +23,8 @@
 		@"messageIDs": @"message_ids",
         @"draftIDs": @"draft_ids",
         @"tagIDs": @"tags",
-		@"snippet": @"snippet"
+		@"snippet": @"snippet",
+        @"highestModSeq": @"highestModSeq"
 	}];
 	return mapping;
 }
@@ -76,7 +77,7 @@
 
 + (NSArray *)databaseIndexProperties
 {
-	return [[super databaseIndexProperties] arrayByAddingObjectsFromArray: @[@"lastMessageDate", @"subject"]];
+	return [[super databaseIndexProperties] arrayByAddingObjectsFromArray: @[@"lastMessageDate", @"subject", @"highestModSeq"]];
 }
 
 + (NSArray *)databaseJoinTableProperties

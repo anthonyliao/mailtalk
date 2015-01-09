@@ -340,7 +340,6 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                             }
                             NSDictionary * dictionaryForNewThread = [newThread resourceDictionary];
                             [dictionaryRepresentionOfThreads addObject:dictionaryForNewThread];
-//                            NSLog(@"%@", dictionaryForNewThread);
                         }
                         
                         NSLog(@"MT threads: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
@@ -410,7 +409,6 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                             }
                             NSDictionary * dictionaryForNewThread = [newThread resourceDictionary];
                             [dictionaryRepresentionOfThreads addObject:dictionaryForNewThread];
-//                            NSLog(@"%@", dictionaryForNewThread);
                         }
                         
                         NSLog(@"MT threads: delta sync: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
@@ -446,7 +444,6 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                         }
                         NSDictionary * dictionaryForNewThread = [newThread resourceDictionary];
                         [dictionaryRepresentionOfThreads addObject:dictionaryForNewThread];
-                        //                            NSLog(@"%@", dictionaryForNewThread);
                     }
                     
                     NSLog(@"MT threads: delta sync: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
