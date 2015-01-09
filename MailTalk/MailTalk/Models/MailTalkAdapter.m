@@ -363,6 +363,7 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
             //Fetch deltas since our last sync
             if (_highestModSeq < [status highestModSeqValue]) {
                 NSLog(@"MT threads: delta sync: clientModSeq:%llu, serverModSeq:%llu", _highestModSeq, [status highestModSeqValue]);
+                uint64_t serverHighestModSeq = [status highestModSeqValue];
                 MCOIndexSet * uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
                 MCOIMAPFetchMessagesOperation * syncOp = [_MC syncMessagesWithFolder:GMAIL_FOLDER requestKind:_requestKind uids:uids modSeq:_highestModSeq];
                 [syncOp start:^(NSError *error, NSArray *deltaMessages, MCOIndexSet *deletedMessages) {
@@ -412,11 +413,12 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
 //                            NSLog(@"%@", dictionaryForNewThread);
                         }
                         
-                        NSLog(@"MT threads: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
+                        NSLog(@"MT threads: delta sync: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
                         
                         NSData * json = [NSJSONSerialization dataWithJSONObject:dictionaryRepresentionOfThreads options:NSJSONWritingPrettyPrinted error:&error];
                         
                         if (error == nil) {
+                            _highestModSeq = serverHighestModSeq;
                             success(json, nil);
                         } else {
                             failure(NO, error);
@@ -426,6 +428,37 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                         failure(NO, error);
                     }
                 }];
+            } else {
+                //Nothing changed, just return threads from cache
+                dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+                    NSLog(@"MT threads: delta sync: nothing new");
+                    NSError * error;
+                    NSMutableArray * dictionaryRepresentionOfThreads = [[NSMutableArray alloc] init];
+                    
+                    NSEnumerator * threadsEnumerator = [_cache objectEnumerator];
+                    NSMutableArray * messagesForThread;
+                    
+                    while (messagesForThread = [threadsEnumerator nextObject]) {
+                        MTThread * newThread = [[MTThread alloc] init];
+                        [newThread setNamespaceID:[_GTMOAuth userEmail]];
+                        for (MCOIMAPMessage * messageForThread in messagesForThread) {
+                            [newThread addMessage:messageForThread];
+                        }
+                        NSDictionary * dictionaryForNewThread = [newThread resourceDictionary];
+                        [dictionaryRepresentionOfThreads addObject:dictionaryForNewThread];
+                        //                            NSLog(@"%@", dictionaryForNewThread);
+                    }
+                    
+                    NSLog(@"MT threads: delta sync: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
+                    
+                    NSData * json = [NSJSONSerialization dataWithJSONObject:dictionaryRepresentionOfThreads options:NSJSONWritingPrettyPrinted error:&error];
+                    
+                    if (error == nil) {
+                        success(json, nil);
+                    } else {
+                        failure(NO, error);
+                    }
+                });
             }
         }
     }];
