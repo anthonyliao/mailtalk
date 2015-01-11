@@ -49,6 +49,7 @@ FOUNDATION_EXPORT const unsigned char InboxVersionString[];
 #import "INDeleteDraftTask.h"
 #import "INSaveTagTask.h"
 #import "INSyncEngine.h"
+#import "INDeltaSyncEngine.h"
 #import "INFile.h"
 #import "INDraft.h"
 #import "NSError+InboxErrors.h"

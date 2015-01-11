@@ -19,6 +19,7 @@
 #import "MTMessage.h"
 
 static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
+#define MAX_EMAILS_PER_DOWNLOAD 1000
 
 @implementation MailTalkAdapter {
     NSString * _keychainName;
@@ -75,7 +76,7 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
 //        } else {
             dataStr = [[NSString alloc] initWithData:[data subdataWithRange:NSMakeRange(0, data.length)] encoding:NSUTF8StringEncoding];
 //        }
-//        NSLog(@"[%p:%i]: %@", connectionID, type, dataStr);
+        NSLog(@"[%p:%i]: %@", connectionID, type, dataStr);
     };
     
     _keychainName = @"MTOAuth2Token";
@@ -271,6 +272,42 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
 //    [_MC2 cancelAllOperations];
 }
 
+- (NSArray *)getThreadsFromCache
+{
+    NSMutableArray * dictionaryRepresentionOfThreads = [[NSMutableArray alloc] init];
+    @synchronized(_cacheLock) {
+        NSEnumerator * threadsEnumerator = [_cache objectEnumerator];
+        NSMutableArray * messagesForThread;
+        
+        while (messagesForThread = [threadsEnumerator nextObject]) {
+            MTThread * newThread = [[MTThread alloc] init];
+            [newThread setNamespaceID:[_GTMOAuth userEmail]];
+            for (MCOIMAPMessage * messageForThread in messagesForThread) {
+                [newThread addMessage:messageForThread];
+            }
+            NSDictionary * dictionaryForNewThread = [newThread resourceDictionary];
+            [dictionaryRepresentionOfThreads addObject:dictionaryForNewThread];
+        }
+    }
+    
+    //Sort by highestModSeq asc order, in order for oldest to be persisted first
+//    [dictionaryRepresentionOfThreads sortUsingComparator: ^(id obj1, id obj2) {
+//        NSDictionary * dict1 = (NSDictionary *)obj1;
+//        NSDictionary * dict2 = (NSDictionary *)obj2;
+//        long long modSeq1 = [(NSString *)[dict1 objectForKey:@"highestModSeq"] longLongValue];
+//        long long modSeq2 = [(NSString *)[dict2 objectForKey:@"highestModSeq"] longLongValue];
+//        if (modSeq1 > modSeq2) {
+//            return (NSComparisonResult)NSOrderedDescending;
+//        }
+//        if (modSeq1 < modSeq2) {
+//            return (NSComparisonResult)NSOrderedAscending;
+//        }
+//        return (NSComparisonResult)NSOrderedSame;
+//    }];
+    
+    return dictionaryRepresentionOfThreads;
+}
+
 - (void)getThreadsWithNamespace:(NSString *)namespaceID
                      parameters:(id)parameters
                         success:(ResultBlock)success
@@ -327,20 +364,7 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                             }
                         }
                         
-                        NSMutableArray * dictionaryRepresentionOfThreads = [[NSMutableArray alloc] init];
-                        
-                        NSEnumerator * threadsEnumerator = [_cache objectEnumerator];
-                        NSMutableArray * messagesForThread;
-                        
-                        while (messagesForThread = [threadsEnumerator nextObject]) {
-                            MTThread * newThread = [[MTThread alloc] init];
-                            [newThread setNamespaceID:[_GTMOAuth userEmail]];
-                            for (MCOIMAPMessage * messageForThread in messagesForThread) {
-                                [newThread addMessage:messageForThread];
-                            }
-                            NSDictionary * dictionaryForNewThread = [newThread resourceDictionary];
-                            [dictionaryRepresentionOfThreads addObject:dictionaryForNewThread];
-                        }
+                        NSArray * dictionaryRepresentionOfThreads = [self getThreadsFromCache];
                         
                         NSLog(@"MT threads: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
                         
@@ -396,20 +420,8 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                             }
                             
                         }
-                        NSMutableArray * dictionaryRepresentionOfThreads = [[NSMutableArray alloc] init];
                         
-                        NSEnumerator * threadsEnumerator = [_cache objectEnumerator];
-                        NSMutableArray * messagesForThread;
-                        
-                        while (messagesForThread = [threadsEnumerator nextObject]) {
-                            MTThread * newThread = [[MTThread alloc] init];
-                            [newThread setNamespaceID:[_GTMOAuth userEmail]];
-                            for (MCOIMAPMessage * messageForThread in messagesForThread) {
-                                [newThread addMessage:messageForThread];
-                            }
-                            NSDictionary * dictionaryForNewThread = [newThread resourceDictionary];
-                            [dictionaryRepresentionOfThreads addObject:dictionaryForNewThread];
-                        }
+                        NSArray * dictionaryRepresentionOfThreads = [self getThreadsFromCache];
                         
                         NSLog(@"MT threads: delta sync: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
                         
@@ -431,20 +443,8 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                 dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
                     NSLog(@"MT threads: delta sync: nothing new");
                     NSError * error;
-                    NSMutableArray * dictionaryRepresentionOfThreads = [[NSMutableArray alloc] init];
                     
-                    NSEnumerator * threadsEnumerator = [_cache objectEnumerator];
-                    NSMutableArray * messagesForThread;
-                    
-                    while (messagesForThread = [threadsEnumerator nextObject]) {
-                        MTThread * newThread = [[MTThread alloc] init];
-                        [newThread setNamespaceID:[_GTMOAuth userEmail]];
-                        for (MCOIMAPMessage * messageForThread in messagesForThread) {
-                            [newThread addMessage:messageForThread];
-                        }
-                        NSDictionary * dictionaryForNewThread = [newThread resourceDictionary];
-                        [dictionaryRepresentionOfThreads addObject:dictionaryForNewThread];
-                    }
+                    NSArray * dictionaryRepresentionOfThreads = [self getThreadsFromCache];
                     
                     NSLog(@"MT threads: delta sync: retrieved: %lu", (unsigned long)dictionaryRepresentionOfThreads.count);
                     
@@ -469,9 +469,81 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
     NSLog(@"MT messages: namespace:%@, params:%@", namespaceID, parameters);
     
     NSString * folder = @"[Gmail]/All Mail";
+    
     NSString * threadIDString = (NSString *)[parameters objectForKey:@"thread_id"];
     
-    if (threadIDString != nil) {
+    NSNumber * uid = (NSNumber *)[parameters objectForKey:@"uid"];
+    
+    NSNumber * modSeq = (NSNumber *)[parameters objectForKey:@"modSeq"];
+    
+    if (uid != nil) {
+        MCOIndexSet * indexSet = [MCOIndexSet indexSetWithRange:MCORangeMake(1, [uid integerValue]-1)];
+        MCOIMAPSearchExpression * uidSearchExpression = [MCOIMAPSearchExpression searchUIDs:indexSet];
+        MCOIMAPSearchOperation * searchOp = [_MC searchExpressionOperationWithFolder:GMAIL_FOLDER
+                                                                          expression:uidSearchExpression];
+        [searchOp start:^(NSError *error, MCOIndexSet *searchResult) {
+            if (error == nil) {
+                NSLog(@"MT messages: max:%li result:%@", [uid integerValue], searchResult);
+                __block int numEnumerated = 0;
+                __block MCOIndexSet * searchResultMax = [MCOIndexSet indexSet];
+                [[searchResult nsIndexSet] enumerateIndexesWithOptions:NSEnumerationReverse usingBlock:^(NSUInteger idx, BOOL *stop) {
+                    if (numEnumerated < MAX_EMAILS_PER_DOWNLOAD) {
+                        numEnumerated++;
+                        [searchResultMax addIndex:idx];
+                    } else {
+                        *stop = YES;
+                    }
+                }];
+                
+                NSLog(@"MT messages: search result max:%@", searchResultMax);
+                MCOIMAPFetchMessagesOperation * fetchMessagesOp = [_MC fetchMessagesOperationWithFolder:folder requestKind:_requestKind uids:searchResultMax];
+                [fetchMessagesOp start:^(NSError *error, NSArray *fetchedMessages, MCOIndexSet *deletedMessages) {
+                    NSLog(@"MT messages: fetch result:%lu", [fetchedMessages count]);
+                    if (error == nil) {
+                        NSMutableArray * dictionaryRepresentationOfMessages = [[NSMutableArray alloc] init];
+                        for (MCOIMAPMessage * fetchedMessage in fetchedMessages) {
+                            MTMessage * message = [[MTMessage alloc] initWithMessage:fetchedMessage];
+                            [message setNamespaceID:namespaceID];
+                            NSString * snippet = @"";
+                            [message setSnippet:snippet];
+                            //TODO: Set to body for now. Will change in future
+                            [message setBody:snippet];
+                            [dictionaryRepresentationOfMessages addObject:[message resourceDictionary]];
+                        }
+                        success(dictionaryRepresentationOfMessages, nil);
+                    } else {
+                        failure(NO, error);
+                    }
+                }];
+            } else {
+                failure(NO, error);
+            }
+        }];
+    } else if (modSeq != nil) {
+        MCOIndexSet * uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
+        MCOIMAPFetchMessagesOperation * syncOp = [_MC syncMessagesWithFolder:GMAIL_FOLDER requestKind:_requestKind uids:uids modSeq:[modSeq integerValue]];
+        [syncOp start:^(NSError *error, NSArray *deltaMessages, MCOIndexSet *deletedMessages) {
+            NSLog(@"MT messages: delta fetch result:%lu", [deltaMessages count]);
+            if (error == nil) {
+                NSMutableArray * dictionaryRepresentationOfMessages = [[NSMutableArray alloc] init];
+                for (MCOIMAPMessage * deltaMessage in deltaMessages) {
+                    MTMessage * message = [[MTMessage alloc] initWithMessage:deltaMessage];
+                    [message setNamespaceID:namespaceID];
+                    //                            NSString * inReplyToMessageID = (NSString *)[[[fetchedMessage header] inReplyTo] firstObject];
+                    //                            NSString * inReplyTo = [_messageIDToGmailIDCache objectForKey:inReplyToMessageID];
+                    //                            [message setInReplyTo:inReplyTo];
+                    NSString * snippet = @"";
+                    [message setSnippet:snippet];
+                    //TODO: Set to body for now. Will change in future
+                    [message setBody:snippet];
+                    [dictionaryRepresentationOfMessages addObject:[message resourceDictionary]];
+                }
+                success(dictionaryRepresentationOfMessages, nil);
+            } else {
+                failure(NO, error);
+            }
+        }];
+    } else if (threadIDString != nil) {
         __block BOOL found = NO;
         @synchronized(_cacheLock) {
             found = [_cache objectForKey:threadIDString] == nil ? NO : YES;
@@ -490,9 +562,9 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                         NSString * snippet = @"";
                         [message setNamespaceID:namespaceID];
                         [message setThreadID:threadIDString];
-                        NSString * inReplyToMessageID = (NSString *)[[[fetchedMessage header] inReplyTo] firstObject];
-                        NSString * inReplyTo = [_messageIDToGmailIDCache objectForKey:inReplyToMessageID];
-                        [message setInReplyTo:inReplyTo];
+//                        NSString * inReplyToMessageID = (NSString *)[[[fetchedMessage header] inReplyTo] firstObject];
+//                        NSString * inReplyTo = [_messageIDToGmailIDCache objectForKey:inReplyToMessageID];
+//                        [message setInReplyTo:inReplyTo];
                         [message setSnippet:snippet];
                         //TODO: Set to body for now. Will change in future
                         [message setBody:snippet];

@@ -39,7 +39,8 @@ the documentation for INThread.
 @property (nonatomic, strong) NSArray * cc;
 @property (nonatomic, strong) NSArray * bcc;
 @property (nonatomic, strong) NSString * inReplyTo;
-@property (nonatomic, strong) NSString * modSeq;
+@property (nonatomic, assign) NSInteger modSeq;
+@property (nonatomic, strong) NSString * messageID;
 @property (nonatomic, assign) BOOL unread;
 
 /*

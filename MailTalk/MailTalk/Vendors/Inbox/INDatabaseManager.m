@@ -185,7 +185,16 @@ static void initialize_INDatabaseManager() {
 			colType = @"INTEGER";
 		
 		if ([type isEqualToString:@"Tc"]) // char or bool
-			colType = @"INTEGER";
+            colType = @"INTEGER";
+        
+        if ([type isEqualToString:@"Ti"]) // integer
+            colType = @"INTEGER";
+        
+        if ([type isEqualToString:@"Tl"]) // long
+            colType = @"INTEGER";
+        
+        if ([type isEqualToString:@"Tq"]) // long long
+            colType = @"INTEGER";
 
 		else if ([type isEqualToString:@"float"])
 			colType = @"REAL";

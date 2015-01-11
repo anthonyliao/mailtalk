@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "MailTalk"
-  s.version          = "0.12.1"
+  s.version          = "0.13.0"
   s.summary          = "a more simplified mail library with offline caching, based on mailcore2 and inboxapp"
   s.homepage         = "https://github.com/anthonyliao/mailtalk"
   s.license          = 'MIT'

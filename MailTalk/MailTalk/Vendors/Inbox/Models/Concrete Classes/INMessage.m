@@ -30,9 +30,10 @@
 	 @"to": @"to",
 	 @"cc": @"cc",
 	 @"bcc": @"bcc",
-     @"inReplyTo": @"inReplyTo",
+     @"inReplyTo": @"in_reply_to",
 	 @"unread": @"unread",
-     @"modSeq": @"modSeq"
+     @"modSeq": @"mod_seq",
+     @"messageID": @"message_id"
 	}];
 	return mapping;
 }
@@ -44,7 +45,7 @@
 
 + (NSArray *)databaseIndexProperties
 {
-	return [[super databaseIndexProperties] arrayByAddingObjectsFromArray: @[@"threadID", @"subject", @"date", @"inReplyTo", @"modSeq"]];
+	return [[super databaseIndexProperties] arrayByAddingObjectsFromArray: @[@"threadID", @"subject", @"date", @"messageID", @"inReplyTo", @"modSeq"]];
 }
 
 - (INThread*)thread

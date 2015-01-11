@@ -74,7 +74,7 @@
         else
             _itemCachePolicy = INModelProviderCacheThenNetwork;
         
-		_itemRange = NSMakeRange(0, 200);
+		_itemRange = NSMakeRange(0, 0);
 
 		// subscribe to updates about the local database cache. This creates
 		// a weak reference to us, so we don't have to worry about unregistering later.

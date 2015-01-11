@@ -25,14 +25,16 @@
     }
     
     _message = message;
+    _threadID = [NSString stringWithFormat:@"%llu", [message gmailThreadID]];
     
     return self;
 }
 
 - (NSDictionary *)resourceDictionary
 {
-    NSString * messageID = [NSString stringWithFormat:@"%llu", [_message gmailMessageID]];
+    NSString * gmailID = [NSString stringWithFormat:@"%llu", [_message gmailMessageID]];
     MCOMessageHeader * header = [_message header];
+    NSString * messageID = [header messageID];
     NSString * subject = [header subject] == nil ? @"" : [header subject];
     NSArray * from = [self getParticipants:@[[header from]]];
     NSArray * bcc = [self getParticipants:[header bcc]];
@@ -42,11 +44,13 @@
     NSNumber * unread = ([_message flags] & MCOMessageFlagSeen) ? [NSNumber numberWithBool:NO] : [NSNumber numberWithBool:YES];
     NSArray * fileIds = [[NSArray alloc] init];
     NSArray * files = [[NSArray alloc] init];
-    NSObject * inReplyTo = [self inReplyTo] == nil ? [NSNull null] : [self inReplyTo];
-    NSString * modSeq = [NSString stringWithFormat:@"%llu", [_message modSeqValue]];
+    NSObject * inReplyTo = [[header inReplyTo] firstObject] == nil ? [NSNull null] : [[header inReplyTo] firstObject];
+    NSNumber * modSeq = [NSNumber numberWithInteger:[_message modSeqValue]];
+    NSString * uid = [NSString stringWithFormat:@"%u", [_message uid]];
     NSAssert(subject != nil, @"subject can not be nil");
     NSAssert(modSeq != nil, @"modSeq can not be nil");
-    NSDictionary * resourceDict = @{@"id" : messageID,
+    NSDictionary * resourceDict = @{@"id" : gmailID,
+                                    @"message_id": messageID,
                                     @"subject" : subject,
                                     @"thread_id" : [self threadID],
                                     @"body" : [self body],
@@ -61,10 +65,11 @@
                                     @"updated_at" : [NSNull null],
                                     @"namespace_id" : [self namespaceID],
                                     @"file_ids" : fileIds,
-                                    @"inReplyTo" : inReplyTo,
+                                    @"in_reply_to" : inReplyTo,
                                     @"unread" : unread,
                                     @"to" : to,
-                                    @"modSeq": modSeq
+                                    @"mod_seq": modSeq,
+                                    @"uid":uid
                                     };
 //    NSLog(@"%@", resourceDict);
     return resourceDict;
