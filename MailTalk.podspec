@@ -9,7 +9,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "MailTalk"
-  s.version          = "0.13.0"
+  s.version          = "0.14.0"
   s.summary          = "a more simplified mail library with offline caching, based on mailcore2 and inboxapp"
   s.homepage         = "https://github.com/anthonyliao/mailtalk"
   s.license          = 'MIT'
@@ -24,10 +24,10 @@ Pod::Spec.new do |s|
 
   s.public_header_files = 'MailTalk/MailTalk/**/*.h'
 
-  s.dependency 'gtm-oauth2', '~> 0.1'
-  s.dependency 'mailcore2-ios', '~> 0.4'
-  s.dependency 'FMDB'
-  s.dependency 'AFNetworking', '~> 2.0'
+  s.dependency 'gtm-oauth2', '0.1.0'
+  s.dependency 'mailcore2-ios', '0.5.0'
+  s.dependency 'FMDB', '2.4'
+  s.dependency 'AFNetworking', '2.5.0'
 
   s.libraries = "sqlite3"
 

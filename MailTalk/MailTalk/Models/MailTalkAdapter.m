@@ -91,8 +91,8 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
     //    MCOIMAPMessagesRequestKindHeaderSubject |
     MCOIMAPMessagesRequestKindGmailLabels |
     MCOIMAPMessagesRequestKindGmailMessageID |
-    MCOIMAPMessagesRequestKindGmailThreadID;
-    //    MCOIMAPMessagesRequestKindExtraHeaders |
+    MCOIMAPMessagesRequestKindGmailThreadID |
+    MCOIMAPMessagesRequestKindExtraHeaders;
     //    MCOIMAPMessagesRequestKindSize
     
     GTMOAuth2Authentication * auth = [GTMOAuth2ViewControllerTouch authForGoogleFromKeychainForName:_keychainName clientID:_clientID clientSecret:_clientSecret];
@@ -343,6 +343,8 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                 MCOIMAPFetchMessagesOperation *fetchOperation = [_MC fetchMessagesOperationWithFolder:GMAIL_FOLDER
                                                                                           requestKind:_requestKind
                                                                                                  uids:searchResult];
+                //Include Bcc in fetch b/c MailCore doesn't include it for some reason.
+                [fetchOperation setExtraHeaders:@[@"Bcc"]];
                 [fetchOperation start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
                     NSAssert(![NSThread isMainThread], @"MT threads: fetch op should not be called on main thread.");
                     
@@ -389,6 +391,8 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                 uint64_t serverHighestModSeq = [status highestModSeqValue];
                 MCOIndexSet * uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
                 MCOIMAPFetchMessagesOperation * syncOp = [_MC syncMessagesWithFolder:GMAIL_FOLDER requestKind:_requestKind uids:uids modSeq:_highestModSeq];
+                //Include Bcc in fetch b/c MailCore doesn't include it for some reason.
+                [syncOp setExtraHeaders:@[@"Bcc"]];
                 [syncOp start:^(NSError *error, NSArray *deltaMessages, MCOIndexSet *deletedMessages) {
                     NSLog(@"MT threads: delta sync: add/modified messages count:%llu, removed messages count:%d", (unsigned long long)deltaMessages.count, deletedMessages.count);
                     if (error == nil) {
@@ -497,6 +501,8 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                 
                 NSLog(@"MT messages: search result max:%@", searchResultMax);
                 MCOIMAPFetchMessagesOperation * fetchMessagesOp = [_MC fetchMessagesOperationWithFolder:folder requestKind:_requestKind uids:searchResultMax];
+                //Include Bcc in fetch b/c MailCore doesn't include it for some reason.
+                [fetchMessagesOp setExtraHeaders:@[@"Bcc"]];
                 [fetchMessagesOp start:^(NSError *error, NSArray *fetchedMessages, MCOIndexSet *deletedMessages) {
                     NSLog(@"MT messages: fetch result:%lu", [fetchedMessages count]);
                     if (error == nil) {
@@ -522,6 +528,8 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
     } else if (modSeq != nil) {
         MCOIndexSet * uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
         MCOIMAPFetchMessagesOperation * syncOp = [_MC syncMessagesWithFolder:GMAIL_FOLDER requestKind:_requestKind uids:uids modSeq:[modSeq integerValue]];
+        //Include Bcc in fetch b/c MailCore doesn't include it for some reason.
+        [syncOp setExtraHeaders:@[@"Bcc"]];
         [syncOp start:^(NSError *error, NSArray *deltaMessages, MCOIndexSet *deletedMessages) {
             NSLog(@"MT messages: delta fetch result:%lu", [deltaMessages count]);
             if (error == nil) {
@@ -590,6 +598,8 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                     
                     NSLog(@"MT messages [%d]: search results: %@", [NSThread isMainThread], searchResult);
                     MCOIMAPFetchMessagesOperation * fetchMessagesOp = [_MC fetchMessagesOperationWithFolder:folder requestKind:_requestKind uids:searchResult];
+                    //Include Bcc in fetch b/c MailCore doesn't include it for some reason.
+                    [fetchMessagesOp setExtraHeaders:@[@"Bcc"]];
                     [fetchMessagesOp start:^(NSError * error, NSArray * fetchedMessages, MCOIndexSet * vanishedMessages) {
                         if (error == nil) {
                             NSLog(@"MT messages [%d]: fetched messsages: %lu", [NSThread isMainThread], (unsigned long)[fetchedMessages count]);
