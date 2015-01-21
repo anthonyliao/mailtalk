@@ -175,8 +175,9 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
                                     
                                     [[NSUserDefaults standardUserDefaults] setInteger:oldestUID forKey:SYNC_UID];
                                     
-                                    if ([messages count] == 0 || ([oldestDate compare:[[NSDate date] dateByAddingTimeInterval:OLDEST_SYNC_DATE]] == NSOrderedAscending)) {
+                                    if ([messages count] == 0 || oldestUID == 1 || ([oldestDate compare:[[NSDate date] dateByAddingTimeInterval:OLDEST_SYNC_DATE]] == NSOrderedAscending)) {
                                         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SYNC_COMPLETE];
+                                        [[NSUserDefaults standardUserDefaults] setInteger:0 forKey:SYNC_UID];
                                     }
                                     
                                     if ([[NSUserDefaults standardUserDefaults] integerForKey:SYNC_MOD_SEQ] == 0) {
