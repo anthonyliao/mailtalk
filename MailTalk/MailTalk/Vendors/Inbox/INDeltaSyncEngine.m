@@ -91,10 +91,17 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
     }
     
     if ([self isCompleteSync]) {
-        NSLog(@"INDeltaSyncEngine: complete: remaining: 0");
-        if (resultBlock) {
-            resultBlock([NSNumber numberWithInteger:0], nil);
-        }
+        MCOIndexSet * uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
+        NSInteger modSeq = [[NSUserDefaults standardUserDefaults] integerForKey:SYNC_MOD_SEQ];
+        MCOIMAPFetchMessagesOperation * syncOp = [[[[INAPIManager shared] MT] MC] syncMessagesWithFolder:GMAIL_FOLDER requestKind:MCOIMAPMessagesRequestKindUid uids:uids modSeq:modSeq];
+        [syncOp start:^(NSError *error, NSArray *deltaMessages, MCOIndexSet *deletedMessages) {
+            if (error == nil) {
+                NSLog(@"INDeltaSyncEngine: complete: remaining:%lu", (unsigned long)[deltaMessages count]);
+                resultBlock([NSNumber numberWithInteger:[deltaMessages count]], nil);
+            } else {
+                resultBlock([NSNumber numberWithInteger:0], error);
+            }
+        }];
         return;
     }
     
@@ -128,17 +135,10 @@ static NSString *const GMAIL_FOLDER = @"[Gmail]/All Mail";
     }
     
     if ([self isCompleteSync]) {
-        MCOIndexSet * uids = [MCOIndexSet indexSetWithRange:MCORangeMake(1, UINT64_MAX)];
-        NSInteger modSeq = [[NSUserDefaults standardUserDefaults] integerForKey:SYNC_MOD_SEQ];
-        MCOIMAPFetchMessagesOperation * syncOp = [[[[INAPIManager shared] MT] MC] syncMessagesWithFolder:GMAIL_FOLDER requestKind:MCOIMAPMessagesRequestKindUid uids:uids modSeq:modSeq];
-        [syncOp start:^(NSError *error, NSArray *deltaMessages, MCOIndexSet *deletedMessages) {
-            if (error == nil) {
-                NSLog(@"INDeltaSyncEngine: complete: remaining:%lu", (unsigned long)[deltaMessages count]);
-                resultBlock([NSNumber numberWithInteger:[deltaMessages count]], nil);
-            } else {
-                resultBlock([NSNumber numberWithInteger:0], error);
-            }
-        }];
+        NSLog(@"INDeltaSyncEngine: Sync engine is fully synced.");
+        if (resultBlock) {
+            resultBlock([NSArray array], [NSError errorWithDomain:@"INDeltaSyncEngine" code:1 userInfo:@{NSLocalizedDescriptionKey:@"INDeltaSyncEngine: Sync engine is fully synced."}]);
+        }
         return;
     }
     
