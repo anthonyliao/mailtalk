@@ -1,0 +1,611 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		80E2C9F5DDBE4E436D3F41A4 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 700833FAA6C8328CAA608C97 /* libPods.a */; };
+		922667DF1A37BC7000AA8F98 /* MailTalkAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 9226678B1A37BC7000AA8F98 /* MailTalkAdapter.m */; };
+		922667E01A37BC7000AA8F98 /* MTTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 9226678D1A37BC7000AA8F98 /* MTTag.m */; };
+		922667E11A37BC7000AA8F98 /* MTThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 9226678F1A37BC7000AA8F98 /* MTThread.m */; };
+		922667E21A37BC7000AA8F98 /* FMDatabase+INModelQueries.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667941A37BC7000AA8F98 /* FMDatabase+INModelQueries.m */; };
+		922667E31A37BC7000AA8F98 /* FMResultSet+INModelQueries.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667961A37BC7000AA8F98 /* FMResultSet+INModelQueries.m */; };
+		922667E41A37BC7000AA8F98 /* NSDictionary+FormatConversion.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667981A37BC7000AA8F98 /* NSDictionary+FormatConversion.m */; };
+		922667E51A37BC7000AA8F98 /* NSError+InboxErrors.m in Sources */ = {isa = PBXBuildFile; fileRef = 9226679A1A37BC7000AA8F98 /* NSError+InboxErrors.m */; };
+		922667E61A37BC7000AA8F98 /* NSObject+AssociatedObjects.m in Sources */ = {isa = PBXBuildFile; fileRef = 9226679C1A37BC7000AA8F98 /* NSObject+AssociatedObjects.m */; };
+		922667E71A37BC7000AA8F98 /* NSObject+Properties.m in Sources */ = {isa = PBXBuildFile; fileRef = 9226679E1A37BC7000AA8F98 /* NSObject+Properties.m */; };
+		922667E81A37BC7000AA8F98 /* NSPredicate+Inspection.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667A01A37BC7000AA8F98 /* NSPredicate+Inspection.m */; };
+		922667E91A37BC7000AA8F98 /* NSString+FormatConversion.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667A21A37BC7000AA8F98 /* NSString+FormatConversion.m */; };
+		922667EA1A37BC7000AA8F98 /* INModelResponseSerializer.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667A51A37BC7000AA8F98 /* INModelResponseSerializer.m */; };
+		922667EB1A37BC7000AA8F98 /* INPredicateToQueryParamConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667A71A37BC7000AA8F98 /* INPredicateToQueryParamConverter.m */; };
+		922667EC1A37BC7000AA8F98 /* INPredicateToSQLConverter.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667A91A37BC7000AA8F98 /* INPredicateToSQLConverter.m */; };
+		922667ED1A37BC7000AA8F98 /* INAPIManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667AB1A37BC7000AA8F98 /* INAPIManager.m */; };
+		922667EE1A37BC7000AA8F98 /* INDatabaseManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667AF1A37BC7000AA8F98 /* INDatabaseManager.m */; };
+		922667EF1A37BC7000AA8F98 /* INAddRemoveTagsTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667B41A37BC7000AA8F98 /* INAddRemoveTagsTask.m */; };
+		922667F01A37BC7000AA8F98 /* INAPITask.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667B61A37BC7000AA8F98 /* INAPITask.m */; };
+		922667F11A37BC7000AA8F98 /* INDeleteDraftTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667B81A37BC7000AA8F98 /* INDeleteDraftTask.m */; };
+		922667F21A37BC7000AA8F98 /* INMarkMessageAsReadTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667BA1A37BC7000AA8F98 /* INMarkMessageAsReadTask.m */; };
+		922667F31A37BC7000AA8F98 /* INSaveDraftTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667BC1A37BC7000AA8F98 /* INSaveDraftTask.m */; };
+		922667F41A37BC7000AA8F98 /* INSaveTagTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667BE1A37BC7000AA8F98 /* INSaveTagTask.m */; };
+		922667F51A37BC7000AA8F98 /* INSendDraftTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667C01A37BC7000AA8F98 /* INSendDraftTask.m */; };
+		922667F61A37BC7000AA8F98 /* INUploadFileTask.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667C21A37BC7000AA8F98 /* INUploadFileTask.m */; };
+		922667F71A37BC7000AA8F98 /* INContact.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667C51A37BC7000AA8F98 /* INContact.m */; };
+		922667F81A37BC7000AA8F98 /* INDraft.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667C71A37BC7000AA8F98 /* INDraft.m */; };
+		922667F91A37BC7000AA8F98 /* INFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667C91A37BC7000AA8F98 /* INFile.m */; };
+		922667FA1A37BC7000AA8F98 /* INMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667CB1A37BC7000AA8F98 /* INMessage.m */; };
+		922667FB1A37BC7000AA8F98 /* INNamespace.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667CD1A37BC7000AA8F98 /* INNamespace.m */; };
+		922667FC1A37BC7000AA8F98 /* INTag.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667CF1A37BC7000AA8F98 /* INTag.m */; };
+		922667FD1A37BC7000AA8F98 /* INThread+Private.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667D11A37BC7000AA8F98 /* INThread+Private.m */; };
+		922667FE1A37BC7000AA8F98 /* INThread.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667D31A37BC7000AA8F98 /* INThread.m */; };
+		922667FF1A37BC7000AA8F98 /* INMessageProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667D51A37BC7000AA8F98 /* INMessageProvider.m */; };
+		922668001A37BC7000AA8F98 /* INModelObject+Uniquing.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667D71A37BC7000AA8F98 /* INModelObject+Uniquing.m */; };
+		922668011A37BC7000AA8F98 /* INModelObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667D91A37BC7000AA8F98 /* INModelObject.m */; };
+		922668021A37BC7000AA8F98 /* INModelProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667DC1A37BC7000AA8F98 /* INModelProvider.m */; };
+		922668031A37BC7000AA8F98 /* INThreadProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 922667DE1A37BC7000AA8F98 /* INThreadProvider.m */; };
+		922668051A37BD4400AA8F98 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 922668041A37BD4400AA8F98 /* Foundation.framework */; };
+		922668071A37BD4900AA8F98 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 922668061A37BD4900AA8F98 /* UIKit.framework */; };
+		92688CFA1A38EF1C00002DA2 /* MTMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = 92688CF91A38EF1C00002DA2 /* MTMessage.m */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		92697C071A37BA6A00AE22D0 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		700833FAA6C8328CAA608C97 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		9226678A1A37BC7000AA8F98 /* MailTalkAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MailTalkAdapter.h; sourceTree = "<group>"; };
+		9226678B1A37BC7000AA8F98 /* MailTalkAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MailTalkAdapter.m; sourceTree = "<group>"; };
+		9226678C1A37BC7000AA8F98 /* MTTag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTTag.h; sourceTree = "<group>"; };
+		9226678D1A37BC7000AA8F98 /* MTTag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MTTag.m; sourceTree = "<group>"; };
+		9226678E1A37BC7000AA8F98 /* MTThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MTThread.h; sourceTree = "<group>"; };
+		9226678F1A37BC7000AA8F98 /* MTThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MTThread.m; sourceTree = "<group>"; };
+		922667931A37BC7000AA8F98 /* FMDatabase+INModelQueries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FMDatabase+INModelQueries.h"; sourceTree = "<group>"; };
+		922667941A37BC7000AA8F98 /* FMDatabase+INModelQueries.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "FMDatabase+INModelQueries.m"; sourceTree = "<group>"; };
+		922667951A37BC7000AA8F98 /* FMResultSet+INModelQueries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "FMResultSet+INModelQueries.h"; sourceTree = "<group>"; };
+		922667961A37BC7000AA8F98 /* FMResultSet+INModelQueries.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "FMResultSet+INModelQueries.m"; sourceTree = "<group>"; };
+		922667971A37BC7000AA8F98 /* NSDictionary+FormatConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+FormatConversion.h"; sourceTree = "<group>"; };
+		922667981A37BC7000AA8F98 /* NSDictionary+FormatConversion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+FormatConversion.m"; sourceTree = "<group>"; };
+		922667991A37BC7000AA8F98 /* NSError+InboxErrors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+InboxErrors.h"; sourceTree = "<group>"; };
+		9226679A1A37BC7000AA8F98 /* NSError+InboxErrors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+InboxErrors.m"; sourceTree = "<group>"; };
+		9226679B1A37BC7000AA8F98 /* NSObject+AssociatedObjects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+AssociatedObjects.h"; sourceTree = "<group>"; };
+		9226679C1A37BC7000AA8F98 /* NSObject+AssociatedObjects.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+AssociatedObjects.m"; sourceTree = "<group>"; };
+		9226679D1A37BC7000AA8F98 /* NSObject+Properties.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+Properties.h"; sourceTree = "<group>"; };
+		9226679E1A37BC7000AA8F98 /* NSObject+Properties.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+Properties.m"; sourceTree = "<group>"; };
+		9226679F1A37BC7000AA8F98 /* NSPredicate+Inspection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSPredicate+Inspection.h"; sourceTree = "<group>"; };
+		922667A01A37BC7000AA8F98 /* NSPredicate+Inspection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSPredicate+Inspection.m"; sourceTree = "<group>"; };
+		922667A11A37BC7000AA8F98 /* NSString+FormatConversion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+FormatConversion.h"; sourceTree = "<group>"; };
+		922667A21A37BC7000AA8F98 /* NSString+FormatConversion.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+FormatConversion.m"; sourceTree = "<group>"; };
+		922667A41A37BC7000AA8F98 /* INModelResponseSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INModelResponseSerializer.h; sourceTree = "<group>"; };
+		922667A51A37BC7000AA8F98 /* INModelResponseSerializer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INModelResponseSerializer.m; sourceTree = "<group>"; };
+		922667A61A37BC7000AA8F98 /* INPredicateToQueryParamConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INPredicateToQueryParamConverter.h; sourceTree = "<group>"; };
+		922667A71A37BC7000AA8F98 /* INPredicateToQueryParamConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INPredicateToQueryParamConverter.m; sourceTree = "<group>"; };
+		922667A81A37BC7000AA8F98 /* INPredicateToSQLConverter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INPredicateToSQLConverter.h; sourceTree = "<group>"; };
+		922667A91A37BC7000AA8F98 /* INPredicateToSQLConverter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INPredicateToSQLConverter.m; sourceTree = "<group>"; };
+		922667AA1A37BC7000AA8F98 /* INAPIManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INAPIManager.h; sourceTree = "<group>"; };
+		922667AB1A37BC7000AA8F98 /* INAPIManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INAPIManager.m; sourceTree = "<group>"; };
+		922667AC1A37BC7000AA8F98 /* Inbox-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Inbox-Prefix.pch"; sourceTree = "<group>"; };
+		922667AD1A37BC7000AA8F98 /* Inbox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Inbox.h; sourceTree = "<group>"; };
+		922667AE1A37BC7000AA8F98 /* INDatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INDatabaseManager.h; sourceTree = "<group>"; };
+		922667AF1A37BC7000AA8F98 /* INDatabaseManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INDatabaseManager.m; sourceTree = "<group>"; };
+		922667B01A37BC7000AA8F98 /* INSyncEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INSyncEngine.h; sourceTree = "<group>"; };
+		922667B31A37BC7000AA8F98 /* INAddRemoveTagsTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INAddRemoveTagsTask.h; sourceTree = "<group>"; };
+		922667B41A37BC7000AA8F98 /* INAddRemoveTagsTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INAddRemoveTagsTask.m; sourceTree = "<group>"; };
+		922667B51A37BC7000AA8F98 /* INAPITask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INAPITask.h; sourceTree = "<group>"; };
+		922667B61A37BC7000AA8F98 /* INAPITask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INAPITask.m; sourceTree = "<group>"; };
+		922667B71A37BC7000AA8F98 /* INDeleteDraftTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INDeleteDraftTask.h; sourceTree = "<group>"; };
+		922667B81A37BC7000AA8F98 /* INDeleteDraftTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INDeleteDraftTask.m; sourceTree = "<group>"; };
+		922667B91A37BC7000AA8F98 /* INMarkMessageAsReadTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INMarkMessageAsReadTask.h; sourceTree = "<group>"; };
+		922667BA1A37BC7000AA8F98 /* INMarkMessageAsReadTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INMarkMessageAsReadTask.m; sourceTree = "<group>"; };
+		922667BB1A37BC7000AA8F98 /* INSaveDraftTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INSaveDraftTask.h; sourceTree = "<group>"; };
+		922667BC1A37BC7000AA8F98 /* INSaveDraftTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INSaveDraftTask.m; sourceTree = "<group>"; };
+		922667BD1A37BC7000AA8F98 /* INSaveTagTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INSaveTagTask.h; sourceTree = "<group>"; };
+		922667BE1A37BC7000AA8F98 /* INSaveTagTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INSaveTagTask.m; sourceTree = "<group>"; };
+		922667BF1A37BC7000AA8F98 /* INSendDraftTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INSendDraftTask.h; sourceTree = "<group>"; };
+		922667C01A37BC7000AA8F98 /* INSendDraftTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INSendDraftTask.m; sourceTree = "<group>"; };
+		922667C11A37BC7000AA8F98 /* INUploadFileTask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INUploadFileTask.h; sourceTree = "<group>"; };
+		922667C21A37BC7000AA8F98 /* INUploadFileTask.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INUploadFileTask.m; sourceTree = "<group>"; };
+		922667C41A37BC7000AA8F98 /* INContact.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INContact.h; sourceTree = "<group>"; };
+		922667C51A37BC7000AA8F98 /* INContact.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INContact.m; sourceTree = "<group>"; };
+		922667C61A37BC7000AA8F98 /* INDraft.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INDraft.h; sourceTree = "<group>"; };
+		922667C71A37BC7000AA8F98 /* INDraft.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INDraft.m; sourceTree = "<group>"; };
+		922667C81A37BC7000AA8F98 /* INFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INFile.h; sourceTree = "<group>"; };
+		922667C91A37BC7000AA8F98 /* INFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INFile.m; sourceTree = "<group>"; };
+		922667CA1A37BC7000AA8F98 /* INMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INMessage.h; sourceTree = "<group>"; };
+		922667CB1A37BC7000AA8F98 /* INMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INMessage.m; sourceTree = "<group>"; };
+		922667CC1A37BC7000AA8F98 /* INNamespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INNamespace.h; sourceTree = "<group>"; };
+		922667CD1A37BC7000AA8F98 /* INNamespace.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INNamespace.m; sourceTree = "<group>"; };
+		922667CE1A37BC7000AA8F98 /* INTag.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INTag.h; sourceTree = "<group>"; };
+		922667CF1A37BC7000AA8F98 /* INTag.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INTag.m; sourceTree = "<group>"; };
+		922667D01A37BC7000AA8F98 /* INThread+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INThread+Private.h"; sourceTree = "<group>"; };
+		922667D11A37BC7000AA8F98 /* INThread+Private.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INThread+Private.m"; sourceTree = "<group>"; };
+		922667D21A37BC7000AA8F98 /* INThread.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INThread.h; sourceTree = "<group>"; };
+		922667D31A37BC7000AA8F98 /* INThread.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INThread.m; sourceTree = "<group>"; };
+		922667D41A37BC7000AA8F98 /* INMessageProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INMessageProvider.h; sourceTree = "<group>"; };
+		922667D51A37BC7000AA8F98 /* INMessageProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INMessageProvider.m; sourceTree = "<group>"; };
+		922667D61A37BC7000AA8F98 /* INModelObject+Uniquing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INModelObject+Uniquing.h"; sourceTree = "<group>"; };
+		922667D71A37BC7000AA8F98 /* INModelObject+Uniquing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "INModelObject+Uniquing.m"; sourceTree = "<group>"; };
+		922667D81A37BC7000AA8F98 /* INModelObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INModelObject.h; sourceTree = "<group>"; };
+		922667D91A37BC7000AA8F98 /* INModelObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INModelObject.m; sourceTree = "<group>"; };
+		922667DA1A37BC7000AA8F98 /* INModelProvider+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "INModelProvider+Private.h"; sourceTree = "<group>"; };
+		922667DB1A37BC7000AA8F98 /* INModelProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INModelProvider.h; sourceTree = "<group>"; };
+		922667DC1A37BC7000AA8F98 /* INModelProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INModelProvider.m; sourceTree = "<group>"; };
+		922667DD1A37BC7000AA8F98 /* INThreadProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = INThreadProvider.h; sourceTree = "<group>"; };
+		922667DE1A37BC7000AA8F98 /* INThreadProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = INThreadProvider.m; sourceTree = "<group>"; };
+		922668041A37BD4400AA8F98 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		922668061A37BD4900AA8F98 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		92688CF81A38EEB600002DA2 /* MTMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTMessage.h; sourceTree = "<group>"; };
+		92688CF91A38EF1C00002DA2 /* MTMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MTMessage.m; sourceTree = "<group>"; };
+		92697C091A37BA6A00AE22D0 /* libMailTalk.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libMailTalk.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		E0977A3CB29372E2A8AC19AA /* Pods.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.debug.xcconfig; path = "Pods/Target Support Files/Pods/Pods.debug.xcconfig"; sourceTree = "<group>"; };
+		E9207AAA1DBC18AD1659C581 /* Pods.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.release.xcconfig; path = "Pods/Target Support Files/Pods/Pods.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		92697C061A37BA6A00AE22D0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				922668071A37BD4900AA8F98 /* UIKit.framework in Frameworks */,
+				922668051A37BD4400AA8F98 /* Foundation.framework in Frameworks */,
+				80E2C9F5DDBE4E436D3F41A4 /* libPods.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		922667891A37BC7000AA8F98 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				9226678A1A37BC7000AA8F98 /* MailTalkAdapter.h */,
+				9226678B1A37BC7000AA8F98 /* MailTalkAdapter.m */,
+				9226678C1A37BC7000AA8F98 /* MTTag.h */,
+				9226678D1A37BC7000AA8F98 /* MTTag.m */,
+				9226678E1A37BC7000AA8F98 /* MTThread.h */,
+				9226678F1A37BC7000AA8F98 /* MTThread.m */,
+				92688CF81A38EEB600002DA2 /* MTMessage.h */,
+				92688CF91A38EF1C00002DA2 /* MTMessage.m */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		922667901A37BC7000AA8F98 /* Vendors */ = {
+			isa = PBXGroup;
+			children = (
+				922667911A37BC7000AA8F98 /* Inbox */,
+			);
+			path = Vendors;
+			sourceTree = "<group>";
+		};
+		922667911A37BC7000AA8F98 /* Inbox */ = {
+			isa = PBXGroup;
+			children = (
+				922667921A37BC7000AA8F98 /* Categories */,
+				922667A31A37BC7000AA8F98 /* Helpers */,
+				922667AA1A37BC7000AA8F98 /* INAPIManager.h */,
+				922667AB1A37BC7000AA8F98 /* INAPIManager.m */,
+				922667AC1A37BC7000AA8F98 /* Inbox-Prefix.pch */,
+				922667AD1A37BC7000AA8F98 /* Inbox.h */,
+				922667AE1A37BC7000AA8F98 /* INDatabaseManager.h */,
+				922667AF1A37BC7000AA8F98 /* INDatabaseManager.m */,
+				922667B01A37BC7000AA8F98 /* INSyncEngine.h */,
+				922667B11A37BC7000AA8F98 /* Models */,
+			);
+			path = Inbox;
+			sourceTree = "<group>";
+		};
+		922667921A37BC7000AA8F98 /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				922667931A37BC7000AA8F98 /* FMDatabase+INModelQueries.h */,
+				922667941A37BC7000AA8F98 /* FMDatabase+INModelQueries.m */,
+				922667951A37BC7000AA8F98 /* FMResultSet+INModelQueries.h */,
+				922667961A37BC7000AA8F98 /* FMResultSet+INModelQueries.m */,
+				922667971A37BC7000AA8F98 /* NSDictionary+FormatConversion.h */,
+				922667981A37BC7000AA8F98 /* NSDictionary+FormatConversion.m */,
+				922667991A37BC7000AA8F98 /* NSError+InboxErrors.h */,
+				9226679A1A37BC7000AA8F98 /* NSError+InboxErrors.m */,
+				9226679B1A37BC7000AA8F98 /* NSObject+AssociatedObjects.h */,
+				9226679C1A37BC7000AA8F98 /* NSObject+AssociatedObjects.m */,
+				9226679D1A37BC7000AA8F98 /* NSObject+Properties.h */,
+				9226679E1A37BC7000AA8F98 /* NSObject+Properties.m */,
+				9226679F1A37BC7000AA8F98 /* NSPredicate+Inspection.h */,
+				922667A01A37BC7000AA8F98 /* NSPredicate+Inspection.m */,
+				922667A11A37BC7000AA8F98 /* NSString+FormatConversion.h */,
+				922667A21A37BC7000AA8F98 /* NSString+FormatConversion.m */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
+		922667A31A37BC7000AA8F98 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				922667A41A37BC7000AA8F98 /* INModelResponseSerializer.h */,
+				922667A51A37BC7000AA8F98 /* INModelResponseSerializer.m */,
+				922667A61A37BC7000AA8F98 /* INPredicateToQueryParamConverter.h */,
+				922667A71A37BC7000AA8F98 /* INPredicateToQueryParamConverter.m */,
+				922667A81A37BC7000AA8F98 /* INPredicateToSQLConverter.h */,
+				922667A91A37BC7000AA8F98 /* INPredicateToSQLConverter.m */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		922667B11A37BC7000AA8F98 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				922667B21A37BC7000AA8F98 /* API Calls */,
+				922667C31A37BC7000AA8F98 /* Concrete Classes */,
+				922667D41A37BC7000AA8F98 /* INMessageProvider.h */,
+				922667D51A37BC7000AA8F98 /* INMessageProvider.m */,
+				922667D61A37BC7000AA8F98 /* INModelObject+Uniquing.h */,
+				922667D71A37BC7000AA8F98 /* INModelObject+Uniquing.m */,
+				922667D81A37BC7000AA8F98 /* INModelObject.h */,
+				922667D91A37BC7000AA8F98 /* INModelObject.m */,
+				922667DA1A37BC7000AA8F98 /* INModelProvider+Private.h */,
+				922667DB1A37BC7000AA8F98 /* INModelProvider.h */,
+				922667DC1A37BC7000AA8F98 /* INModelProvider.m */,
+				922667DD1A37BC7000AA8F98 /* INThreadProvider.h */,
+				922667DE1A37BC7000AA8F98 /* INThreadProvider.m */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		922667B21A37BC7000AA8F98 /* API Calls */ = {
+			isa = PBXGroup;
+			children = (
+				922667B31A37BC7000AA8F98 /* INAddRemoveTagsTask.h */,
+				922667B41A37BC7000AA8F98 /* INAddRemoveTagsTask.m */,
+				922667B51A37BC7000AA8F98 /* INAPITask.h */,
+				922667B61A37BC7000AA8F98 /* INAPITask.m */,
+				922667B71A37BC7000AA8F98 /* INDeleteDraftTask.h */,
+				922667B81A37BC7000AA8F98 /* INDeleteDraftTask.m */,
+				922667B91A37BC7000AA8F98 /* INMarkMessageAsReadTask.h */,
+				922667BA1A37BC7000AA8F98 /* INMarkMessageAsReadTask.m */,
+				922667BB1A37BC7000AA8F98 /* INSaveDraftTask.h */,
+				922667BC1A37BC7000AA8F98 /* INSaveDraftTask.m */,
+				922667BD1A37BC7000AA8F98 /* INSaveTagTask.h */,
+				922667BE1A37BC7000AA8F98 /* INSaveTagTask.m */,
+				922667BF1A37BC7000AA8F98 /* INSendDraftTask.h */,
+				922667C01A37BC7000AA8F98 /* INSendDraftTask.m */,
+				922667C11A37BC7000AA8F98 /* INUploadFileTask.h */,
+				922667C21A37BC7000AA8F98 /* INUploadFileTask.m */,
+			);
+			path = "API Calls";
+			sourceTree = "<group>";
+		};
+		922667C31A37BC7000AA8F98 /* Concrete Classes */ = {
+			isa = PBXGroup;
+			children = (
+				922667C41A37BC7000AA8F98 /* INContact.h */,
+				922667C51A37BC7000AA8F98 /* INContact.m */,
+				922667C61A37BC7000AA8F98 /* INDraft.h */,
+				922667C71A37BC7000AA8F98 /* INDraft.m */,
+				922667C81A37BC7000AA8F98 /* INFile.h */,
+				922667C91A37BC7000AA8F98 /* INFile.m */,
+				922667CA1A37BC7000AA8F98 /* INMessage.h */,
+				922667CB1A37BC7000AA8F98 /* INMessage.m */,
+				922667CC1A37BC7000AA8F98 /* INNamespace.h */,
+				922667CD1A37BC7000AA8F98 /* INNamespace.m */,
+				922667CE1A37BC7000AA8F98 /* INTag.h */,
+				922667CF1A37BC7000AA8F98 /* INTag.m */,
+				922667D01A37BC7000AA8F98 /* INThread+Private.h */,
+				922667D11A37BC7000AA8F98 /* INThread+Private.m */,
+				922667D21A37BC7000AA8F98 /* INThread.h */,
+				922667D31A37BC7000AA8F98 /* INThread.m */,
+			);
+			path = "Concrete Classes";
+			sourceTree = "<group>";
+		};
+		92697C001A37BA6A00AE22D0 = {
+			isa = PBXGroup;
+			children = (
+				92697C0B1A37BA6A00AE22D0 /* MailTalk */,
+				92697C0A1A37BA6A00AE22D0 /* Products */,
+				F8C8AB57999B0B788ABDB108 /* Pods */,
+				9BF842DA2A8214FF826B97C5 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		92697C0A1A37BA6A00AE22D0 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				92697C091A37BA6A00AE22D0 /* libMailTalk.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		92697C0B1A37BA6A00AE22D0 /* MailTalk */ = {
+			isa = PBXGroup;
+			children = (
+				922667891A37BC7000AA8F98 /* Models */,
+				922667901A37BC7000AA8F98 /* Vendors */,
+			);
+			path = MailTalk;
+			sourceTree = "<group>";
+		};
+		9BF842DA2A8214FF826B97C5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				922668061A37BD4900AA8F98 /* UIKit.framework */,
+				922668041A37BD4400AA8F98 /* Foundation.framework */,
+				700833FAA6C8328CAA608C97 /* libPods.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F8C8AB57999B0B788ABDB108 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				E0977A3CB29372E2A8AC19AA /* Pods.debug.xcconfig */,
+				E9207AAA1DBC18AD1659C581 /* Pods.release.xcconfig */,
+			);
+			name = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		92697C081A37BA6A00AE22D0 /* MailTalk */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 92697C1D1A37BA6B00AE22D0 /* Build configuration list for PBXNativeTarget "MailTalk" */;
+			buildPhases = (
+				95BE92A57FEAE35CEC88DAF4 /* Check Pods Manifest.lock */,
+				92697C051A37BA6A00AE22D0 /* Sources */,
+				92697C061A37BA6A00AE22D0 /* Frameworks */,
+				92697C071A37BA6A00AE22D0 /* CopyFiles */,
+				3E53D669A471B8E8D0D3EB7A /* Copy Pods Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MailTalk;
+			productName = MailTalk;
+			productReference = 92697C091A37BA6A00AE22D0 /* libMailTalk.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		92697C011A37BA6A00AE22D0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = com.anthonyliao;
+				TargetAttributes = {
+					92697C081A37BA6A00AE22D0 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
+			};
+			buildConfigurationList = 92697C041A37BA6A00AE22D0 /* Build configuration list for PBXProject "MailTalk" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 92697C001A37BA6A00AE22D0;
+			productRefGroup = 92697C0A1A37BA6A00AE22D0 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				92697C081A37BA6A00AE22D0 /* MailTalk */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3E53D669A471B8E8D0D3EB7A /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods/Pods-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		95BE92A57FEAE35CEC88DAF4 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		92697C051A37BA6A00AE22D0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				922667DF1A37BC7000AA8F98 /* MailTalkAdapter.m in Sources */,
+				922667F71A37BC7000AA8F98 /* INContact.m in Sources */,
+				922667FA1A37BC7000AA8F98 /* INMessage.m in Sources */,
+				922668021A37BC7000AA8F98 /* INModelProvider.m in Sources */,
+				922667ED1A37BC7000AA8F98 /* INAPIManager.m in Sources */,
+				922667F91A37BC7000AA8F98 /* INFile.m in Sources */,
+				922667E31A37BC7000AA8F98 /* FMResultSet+INModelQueries.m in Sources */,
+				922667E51A37BC7000AA8F98 /* NSError+InboxErrors.m in Sources */,
+				922667F61A37BC7000AA8F98 /* INUploadFileTask.m in Sources */,
+				922667EA1A37BC7000AA8F98 /* INModelResponseSerializer.m in Sources */,
+				922667FC1A37BC7000AA8F98 /* INTag.m in Sources */,
+				922667EE1A37BC7000AA8F98 /* INDatabaseManager.m in Sources */,
+				922667FF1A37BC7000AA8F98 /* INMessageProvider.m in Sources */,
+				922667E01A37BC7000AA8F98 /* MTTag.m in Sources */,
+				922667E81A37BC7000AA8F98 /* NSPredicate+Inspection.m in Sources */,
+				922667E61A37BC7000AA8F98 /* NSObject+AssociatedObjects.m in Sources */,
+				922667EB1A37BC7000AA8F98 /* INPredicateToQueryParamConverter.m in Sources */,
+				922667FD1A37BC7000AA8F98 /* INThread+Private.m in Sources */,
+				922667F21A37BC7000AA8F98 /* INMarkMessageAsReadTask.m in Sources */,
+				922667EF1A37BC7000AA8F98 /* INAddRemoveTagsTask.m in Sources */,
+				922667F31A37BC7000AA8F98 /* INSaveDraftTask.m in Sources */,
+				922667E71A37BC7000AA8F98 /* NSObject+Properties.m in Sources */,
+				922668001A37BC7000AA8F98 /* INModelObject+Uniquing.m in Sources */,
+				922667FE1A37BC7000AA8F98 /* INThread.m in Sources */,
+				922667F01A37BC7000AA8F98 /* INAPITask.m in Sources */,
+				922667E41A37BC7000AA8F98 /* NSDictionary+FormatConversion.m in Sources */,
+				922667E91A37BC7000AA8F98 /* NSString+FormatConversion.m in Sources */,
+				922668011A37BC7000AA8F98 /* INModelObject.m in Sources */,
+				922667F11A37BC7000AA8F98 /* INDeleteDraftTask.m in Sources */,
+				922667FB1A37BC7000AA8F98 /* INNamespace.m in Sources */,
+				922667F51A37BC7000AA8F98 /* INSendDraftTask.m in Sources */,
+				922667E11A37BC7000AA8F98 /* MTThread.m in Sources */,
+				922667E21A37BC7000AA8F98 /* FMDatabase+INModelQueries.m in Sources */,
+				922668031A37BC7000AA8F98 /* INThreadProvider.m in Sources */,
+				922667EC1A37BC7000AA8F98 /* INPredicateToSQLConverter.m in Sources */,
+				922667F81A37BC7000AA8F98 /* INDraft.m in Sources */,
+				92688CFA1A38EF1C00002DA2 /* MTMessage.m in Sources */,
+				922667F41A37BC7000AA8F98 /* INSaveTagTask.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		92697C1B1A37BA6B00AE22D0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		92697C1C1A37BA6B00AE22D0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		92697C1E1A37BA6B00AE22D0 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E0977A3CB29372E2A8AC19AA /* Pods.debug.xcconfig */;
+			buildSettings = {
+				GCC_PREFIX_HEADER = "MailTalk/Vendors/Inbox/Inbox-Prefix.pch";
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		92697C1F1A37BA6B00AE22D0 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E9207AAA1DBC18AD1659C581 /* Pods.release.xcconfig */;
+			buildSettings = {
+				GCC_PREFIX_HEADER = "MailTalk/Vendors/Inbox/Inbox-Prefix.pch";
+				OTHER_LDFLAGS = "$(inherited)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		92697C041A37BA6A00AE22D0 /* Build configuration list for PBXProject "MailTalk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92697C1B1A37BA6B00AE22D0 /* Debug */,
+				92697C1C1A37BA6B00AE22D0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		92697C1D1A37BA6B00AE22D0 /* Build configuration list for PBXNativeTarget "MailTalk" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				92697C1E1A37BA6B00AE22D0 /* Debug */,
+				92697C1F1A37BA6B00AE22D0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 92697C011A37BA6A00AE22D0 /* Project object */;
+}

@@ -1,0 +1,8 @@
+source 'https://github.com/CocoaPods/Specs.git'
+
+platform :ios, '8.0'
+pod 'gtm-oauth2', '~> 0.1'
+pod 'mailcore2-ios', '~> 0.4'
+pod 'FMDB'
+pod 'AFNetworking', '~> 2.0'
+

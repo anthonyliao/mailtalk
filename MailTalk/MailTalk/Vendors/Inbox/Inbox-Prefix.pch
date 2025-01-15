@@ -1,0 +1,24 @@
+//
+//  Prefix header
+//
+//  The contents of this file are implicitly included at the beginning of every source file.
+//
+
+#ifdef __OBJC__
+
+#import <Foundation/Foundation.h>
+
+#ifndef COCOAPODS
+#import "INDependencyNamespacing.h"
+#endif
+
+#import "AFNetworking.h"
+
+#import "FMDatabase.h"
+#import "FMDatabaseQueue.h"
+#import "FMResultSet.h"
+#import "FMResultSet+INModelQueries.h"
+#import "FMDatabaseAdditions.h"
+
+#endif
+
